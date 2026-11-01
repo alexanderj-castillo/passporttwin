@@ -52,6 +52,7 @@ def test_ambiguous_document_first_serial_failure_is_visible(tmp_path):
     item['pdf_lines'] = ['Serial: PT-1', 'Serial: PT-2']
     paths = runner.materialize_cases({'cases': [item]}, tmp_path)
     rows = runner.evaluate_cases([item], paths, SimpleNamespace(rollback=lambda: None), {'PT-1', 'PT-2'},
+                                 extractor=lambda path: {'serial_number': 'PT-1'},
                                  validator=lambda db, fields: (SimpleNamespace(serial_number=fields['serial_number']), []))
     report = runner.report_for(rows)
     assert report['execution_status'] == 'COMPLETE'
