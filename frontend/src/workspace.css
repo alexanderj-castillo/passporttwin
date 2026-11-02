@@ -1,0 +1,13 @@
+.workspace-nav { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; border-bottom: 1px solid #dce6f0; padding-bottom: 16px; }
+.workspace-nav a { padding: 10px 16px; border-radius: 8px; color: #1755a5; text-decoration: none; }
+.workspace-nav a[aria-current="page"] { color: white; background: #1d4ed8; }
+.workspace-tasks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 16px; }
+.workspace-tasks a { display: flex; flex-direction: column; gap: 10px; padding: 20px; border: 1px solid #dce6f0; border-radius: 10px; color: #18334c; text-decoration: none; background: #f4f8fc; }
+.workspace-tasks a:hover, .workspace-tasks a:focus-visible { border-color: #1755a5; }
+.workspace-advanced { margin: 20px 0; }
+.workspace-advanced summary { cursor: pointer; }
+.document-results { padding: 0; list-style: none; }
+.document-results li { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px 0; border-bottom: 1px solid #dce6f0; overflow-wrap: anywhere; }
+.document-results span { color: #526579; }
+.workspace-pages { display: flex; flex-wrap: wrap; gap: 12px; }
+#document-review-search, #document-audit-search { box-sizing: border-box; max-width: 100%; padding: 8px; }

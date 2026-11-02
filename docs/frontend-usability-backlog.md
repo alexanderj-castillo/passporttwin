@@ -17,11 +17,13 @@ El [registro técnico central](technical-debt.md) enlaza UI-01/02/03 y DOC-01 co
 | UI-08 · P1 | Vigencia de snapshots informa del problema, pero el operador depende de comandos/API para actualizar; dashboard es instalación aparte. | Acceso claro a flota y refresco con estado de operación, si se incluye en alcance. No presentar snapshots viejos como resultados vigentes. | API refresh, URL Metabase y definición del rol operador |
 | UI-09 · P2 | La demo de defensa necesita una historia corta y repetible. | Recorrido guiado con caso rotulado, datos preparados, evidencia de antes/después, restauración reproducible y vídeo alternativo. | Producto estable, resultados finales y duración de defensa |
 
-Seguimiento al 02/11/2026 tras comprobar GitHub y main `0f4f3ac`:
+Seguimiento al 02/11/2026 tras comprobar GitHub y main `602b659`:
 
 - UI-01 (#29) y DOC-01 (#32) integrados en main.
-- UI-02 (#30) y UI-03 (#31) revisados y fusionados en sus ramas base; todavía ausentes de main. Esta entrega prepara el traslado conjunto, con 324 backend/BI y build correctos.
+- UI-02 (#30) y UI-03 (#31) integrados en main mediante #33; candidato comprobado con 324 backend/BI y build correcto.
 - Las observaciones de la tabla describen el problema original; el [registro técnico](technical-debt.md) conserva estado/evidencia. No se confunde PR cerrada con presencia en main.
+
+UI-04/05, [PR #34](https://github.com/projects-i40-ap/passporttwin/pull/34): inicio por tareas y selectores por nombre/serie/ubicación, documentos sin vínculo incluidos, paginación y enlaces con contexto, IDs avanzados opcionales y textos comunes de auditoría en español. 332 backend/BI, build y 12 controles de navegador. Pendiente revisión/integración; no se cierra toda UI-04 (falta carga/procesado en UI) ni UI-05/06/07 (catálogo/diseño/accesibilidad completos).
 
 P0 bloquea tareas o interpreta incorrectamente el estado. P1 mejora la operación y su comprensión; P2 prepara la presentación. No hace falta implementar cada extensión del backlog para cerrar el TFM: acordar qué tareas se defenderán y validar su recorrido completo.
 

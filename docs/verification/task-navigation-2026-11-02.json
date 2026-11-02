@@ -1,0 +1,35 @@
+{
+  "result": "PASS",
+  "checks": [
+    "Default home offers tasks and instrument search, without loading document 1",
+    "Document picker includes unlinked entries and paginates beyond 20",
+    "Select review document by filename without entering IDs",
+    "Reload and browser Back/Forward follow selected URL context",
+    "Internal navigation protects unsaved edits; explicit local discard permits navigation",
+    "Instrument audit opens by serial name and retains deep link",
+    "Document audit opens by filename without numeric lookup",
+    "No-result search is explicit",
+    "Home and picker fit mobile; desktop task layout captured",
+    "Injected document-list 503 shows Spanish error and retry recovers actual server results",
+    "Selected document heading uses server filename, not an ID-only form",
+    "Advanced manual ID loading also protects unsaved edits without writing to API"
+  ],
+  "js_errors": [],
+  "scope": "Synthetic technical navigation rehearsal",
+  "base_main": "602b65933eb0cbdbf11e163fc33875ab9a5e42f0",
+  "backend_bi_passed": 332,
+  "new_list_tests": 8,
+  "frontend_build": "PASS Node 20 / Vite 5.4.21 (cached dependencies)",
+  "fault_injection": "One intercepted 503 for document list; retry queried actual API",
+  "source_sha256": {
+    "backend/app/api/documents.py": "b721424f8ecd19c8da34cf2d9a9f1bfe65ab5e5a166aec729641619700cfcd30",
+    "frontend/src/main.jsx": "1b5a92a886bd0b0c1eab6cb66f768ecb12559a190b82e89bd2277288dde37789",
+    "frontend/src/DocumentFinder.jsx": "1706f394be0662ffbd49448cc438038b437519c113297b331448c1e55adb8671",
+    "frontend/src/InstrumentFinder.jsx": "0fd292746b3941791c7e565d7aa63b243cf85949daa2dcc442025dc1cdd721ab",
+    "frontend/src/workspace.css": "0a3c1e1a57a69e1ff40de6db88a4b6323d559b376c52e21dac203471c3de785e"
+  },
+  "probe_notes": [
+    "Initial Back probe assumed local filter persistence; corrected to URL-context contract.",
+    "Additional draft probe initially used an input value selector that changed after editing; corrected to stable field ID selector and both additional checks passed."
+  ]
+}

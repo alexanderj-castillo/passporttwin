@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route, Link, useSearchParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useSearchParams, useLocation } from "react-router-dom";
 import Passport from "./Passport";
 import DocumentOriginal from "./DocumentOriginal";
 import InstrumentFinder from "./InstrumentFinder";
+import DocumentFinder from "./DocumentFinder";
+import "./workspace.css";
 import { statusLabel } from "./presentation";
 
 
@@ -77,11 +79,11 @@ function getRulesLabel(log) {
   const beforeRules = log.before?.rules_failed;
 
   if (Array.isArray(afterRules)) {
-    return afterRules.length > 0 ? afterRules.join(", ") : "none";
+    return afterRules.length > 0 ? afterRules.join(", ") : "Sin reglas incumplidas";
   }
 
   if (Array.isArray(beforeRules)) {
-    return beforeRules.length > 0 ? beforeRules.join(", ") : "none";
+    return beforeRules.length > 0 ? beforeRules.join(", ") : "Sin reglas incumplidas";
   }
 
   return "—";
@@ -93,7 +95,7 @@ function getEventTone(log) {
 
   if (log.action === "FIELD_CORRECTED") {
     return {
-      label: "correction",
+      label: "Corrección",
       color: "#1d4ed8",
       background: "#eff6ff",
       border: "#bfdbfe",
@@ -105,7 +107,7 @@ function getEventTone(log) {
     log.action === "CALIBRATION_INGESTED"
   ) {
     return {
-      label: "accepted",
+      label: log.action === "CALIBRATION_INGESTED" ? "Incorporación al historial" : "Validación documental",
       color: "#15803d",
       background: "#f0fdf4",
       border: "#bbf7d0",
@@ -114,7 +116,7 @@ function getEventTone(log) {
 
   if (afterStatus === "REVIEW_REQUIRED") {
     return {
-      label: "review required",
+      label: "Requiere revisión",
       color: "#b45309",
       background: "#fffbeb",
       border: "#fde68a",
@@ -122,7 +124,7 @@ function getEventTone(log) {
   }
 
   return {
-    label: "event",
+    label: "Evento",
     color: "#334155",
     background: "#f8fafc",
     border: "#e2e8f0",
@@ -244,7 +246,7 @@ function AuditTrailTable({ events }) {
   if (!events || events.length === 0) {
     return (
       <p style={{ marginTop: "24px", color: "#64748b" }}>
-        No audit events recorded for this entity.
+        No hay eventos de auditoría registrados para esta entidad.
       </p>
     );
   }
@@ -267,13 +269,13 @@ function AuditTrailTable({ events }) {
       >
         <thead>
           <tr style={{ background: "#f1f5f9" }}>
-            <th style={headerCellStyle}>Timestamp UTC</th>
-            <th style={headerCellStyle}>Action</th>
-            <th style={headerCellStyle}>Entity</th>
-            <th style={headerCellStyle}>Actor</th>
-            <th style={headerCellStyle}>Before → After</th>
-            <th style={headerCellStyle}>Rules</th>
-            <th style={headerCellStyle}>SHA-256 evidence</th>
+            <th style={headerCellStyle}>Fecha y hora UTC</th>
+            <th style={headerCellStyle}>Acción</th>
+            <th style={headerCellStyle}>Entidad</th>
+            <th style={headerCellStyle}>Actor / proceso</th>
+            <th style={headerCellStyle}>Antes → Después</th>
+            <th style={headerCellStyle}>Reglas</th>
+            <th style={headerCellStyle}>Evidencia SHA-256</th>
           </tr>
         </thead>
 
@@ -334,6 +336,7 @@ function AuditTrailTable({ events }) {
 
                 <td style={cellStyle}>
                   {log.actor || log.details?.actor || "—"}
+                  <div style={{ color: "#64748b" }}>{log.source || log.details?.source || ""}</div>
                 </td>
 
                 <td style={cellStyle}>
@@ -365,35 +368,23 @@ function AuditTrailTable({ events }) {
 }
 
 
-function tabStyle(isActive) {
-  return {
-    padding: "10px 18px",
-    border: "1px solid #cbd5e1",
-    borderRadius: "999px",
-    background: isActive ? "#1d4ed8" : "#ffffff",
-    color: isActive ? "#ffffff" : "#334155",
-    fontWeight: "bold",
-    cursor: "pointer",
-  };
-}
-
-
 function App() {
   const [params] = useSearchParams();
-  const initialTab = params.get("tab") === "audit" ? "audit" : "review";
+  const initialTab = params.get("tab") === "audit" ? "audit" : (params.get("tab") === "review" || params.has("documentId")) ? "review" : "home";
   const hasDocument = /^\d+$/.test(params.get("documentId") || "");
   const hasAudit = /^\d+$/.test(params.get("id") || "");
-  const initialDocument = hasDocument ? params.get("documentId") : "1";
-  const initialAudit = hasAudit ? params.get("id") : "1";
+  const initialDocument = hasDocument ? params.get("documentId") : "";
+  const initialAudit = hasAudit ? params.get("id") : "";
   React.useEffect(() => {
     if (initialTab === "review" && hasDocument) loadDocument();
     if (initialTab === "audit" && hasAudit) queryAudit({ preventDefault() {} });
   }, []);
 
   /* Estado de la vista de revisión documental (pestaña "review"). */
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const activeTab = initialTab;
   const [documentId, setDocumentId] = useState(initialDocument);
   const [loadedDocumentId, setLoadedDocumentId] = useState(null);
+  const [loadedDocumentName, setLoadedDocumentName] = useState("");
   const [processingStatus, setProcessingStatus] = useState("");
   const [fields, setFields] = useState([]);
   const serialCandidates = candidateSerials(fields.find((field) => field.field_name === "serial_candidates")?.raw_value);
@@ -406,6 +397,22 @@ function App() {
   const [rulesFailed, setRulesFailed] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  React.useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const warn = event => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [hasUnsavedChanges]);
+  function guardNavigation(event) {
+    const link = event.target.closest?.("a");
+    if (hasUnsavedChanges && link && link.target !== "_blank") {
+      const destination = new URL(link.href, window.location.href);
+      if (destination.pathname + destination.search !== window.location.pathname + window.location.search) {
+        event.preventDefault(); event.stopPropagation();
+        setMessage("Guarda o descarta los cambios locales antes de cambiar de vista.");
+      }
+    }
+  }
 
   /* Estado de la vista de auditoría (pestaña "audit"). */
   const [auditEntityType, setAuditEntityType] = useState(params.get("entity") === "instrument" ? "instrument" : "document");
@@ -420,6 +427,7 @@ function App() {
     if (!response.ok) throw new Error(data.detail || "No se han podido cargar los campos del documento.");
     setProcessingStatus(data.processing_status);
     setLoadedDocumentId(data.document_id);
+    setLoadedDocumentName(data.original_filename || "");
     setFields(data.fields);
     setSavedValues(Object.fromEntries(data.fields.map(field => [field.field_id, field.normalized_value])));
     setMaterialization(data.materialization);
@@ -427,6 +435,7 @@ function App() {
   }
 
   async function loadDocument() {
+    if (hasUnsavedChanges) { setMessage("Guarda o descarta los cambios locales antes de cargar otro documento."); return; }
     setLoading(true);
     setMessage("");
     setRulesFailed([]);
@@ -435,7 +444,7 @@ function App() {
       await refreshDocument(documentId);
       setMessage("Documento cargado.");
     } catch (error) {
-      setProcessingStatus(""); setLoadedDocumentId(null); setFields([]); setMaterialization(null);
+      setProcessingStatus(""); setLoadedDocumentId(null); setLoadedDocumentName(""); setFields([]); setMaterialization(null);
       setMessage(error.message);
     } finally { setLoading(false); }
   }
@@ -587,7 +596,7 @@ function App() {
 
       setAuditTrace(data);
       setAuditMessage(
-        `${data.total_events} audit event(s) retrieved.`
+        `${data.total_events} eventos de auditoría encontrados.`
       );
     } catch (error) {
       setAuditTrace(null);
@@ -599,6 +608,7 @@ function App() {
 
   return (
     <main
+      onClickCapture={guardNavigation}
       style={{
         fontFamily: "Arial, sans-serif",
         maxWidth: "1280px",
@@ -609,45 +619,35 @@ function App() {
       <h1>PassportTwin</h1>
       {/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.get("passport") || "") &&
         <Link to={`/passport/${params.get("passport")}`}>Volver al pasaporte</Link>}
-      <InstrumentFinder apiBaseUrl={API_BASE_URL} />
-
-      <nav
-        aria-label="Vistas de la aplicación"
-        style={{
-          display: "flex",
-          gap: "10px",
-          marginTop: "20px",
-          marginBottom: "12px",
-          flexWrap: "wrap",
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => setActiveTab("review")}
-          aria-pressed={activeTab === "review"}
-          style={tabStyle(activeTab === "review")}
-        >
-          Revisión documental
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("audit")}
-          aria-pressed={activeTab === "audit"}
-          style={tabStyle(activeTab === "audit")}
-        >
-          Auditoría y trazabilidad
-        </button>
+      <nav aria-label="Vistas de la aplicación" className="workspace-nav">
+        <Link to="/" aria-current={activeTab === "home" ? "page" : undefined}>Inicio</Link>
+        <Link to="/?tab=review" aria-current={activeTab === "review" ? "page" : undefined}>Revisión documental</Link>
+        <Link to="/?tab=audit" aria-current={activeTab === "audit" ? "page" : undefined}>Auditoría y trazabilidad</Link>
       </nav>
+
+      {activeTab === "home" && <>
+        <section aria-labelledby="tasks-heading">
+          <h2 id="tasks-heading">¿Qué necesitas hacer?</h2>
+          <div className="workspace-tasks">
+            <a href="#inventory"><strong>Consultar un pasaporte</strong><span>Busca un instrumento por serie o ubicación y consulta su historial.</span></a>
+            <Link to="/?tab=review"><strong>Revisar un documento</strong><span>Encuentra el certificado por nombre o instrumento, revisa sus campos e incorpóralo al historial.</span></Link>
+            <Link to="/?tab=audit"><strong>Consultar trazabilidad</strong><span>Selecciona un documento o instrumento para ver sus eventos y correcciones.</span></Link>
+          </div>
+        </section>
+        <div id="inventory"><InstrumentFinder apiBaseUrl={API_BASE_URL} /></div>
+      </>}
 
       {activeTab === "review" && (
         <section>
           <h2>Revisión documental</h2>
 
           <p>
-            Revisa y corrige los campos extraídos antes de aceptar el documento.
+            Busca el documento, comprueba su original y revisa los campos antes de incorporar una calibración al historial.
           </p>
 
+          <DocumentFinder apiBaseUrl={API_BASE_URL} mode="review" />
+          <details className="workspace-advanced">
+            <summary>Buscar por ID de documento (avanzado)</summary>
           <section
             style={{
               marginTop: "32px",
@@ -698,8 +698,11 @@ function App() {
             </div>
           </section>
 
+          </details>
+
           {loadedDocumentId && (
-            <p><Link to={`/documents/${loadedDocumentId}/original${params.get("passport") ? `?passport=${encodeURIComponent(params.get("passport"))}` : ""}`}>Abrir original</Link></p>
+            <section aria-label="Documento seleccionado"><h3>{loadedDocumentName || `Documento ${loadedDocumentId}`}</h3>
+            <p><Link to={`/documents/${loadedDocumentId}/original${params.get("passport") ? `?passport=${encodeURIComponent(params.get("passport"))}` : ""}`}>Abrir original</Link></p></section>
           )}
 
           {processingStatus && (
@@ -734,6 +737,11 @@ function App() {
             </button>}
             {projectionWarning && <p role="alert">{projectionWarning}</p>}
           </section>}
+
+          {hasUnsavedChanges && <p><button type="button" disabled={loading} onClick={() => {
+            setFields(current => current.map(field => ({ ...field, normalized_value: savedValues[field.field_id] })));
+            setMessage("Cambios locales descartados. Los valores guardados no se han modificado.");
+          }}>Descartar cambios sin guardar</button></p>}
 
           {message && (
             <p role="status" style={{ marginTop: "20px" }}>
@@ -890,10 +898,13 @@ function App() {
           <h2>Auditoría y trazabilidad</h2>
 
           <p>
-            Immutable, chronologically descending history of every
-            change applied to a document or an instrument.
+            Consulta el historial de eventos y correcciones, ordenado del más reciente al más antiguo.
           </p>
 
+          <InstrumentFinder apiBaseUrl={API_BASE_URL} mode="audit" />
+          <DocumentFinder apiBaseUrl={API_BASE_URL} mode="audit" />
+          <details className="workspace-advanced">
+            <summary>Consultar por ID (avanzado)</summary>
           <form
             onSubmit={queryAudit}
             style={{
@@ -966,6 +977,8 @@ function App() {
             </button>
           </form>
 
+          </details>
+
           {auditMessage && (
             <p style={{ marginTop: "20px" }}>{auditMessage}</p>
           )}
@@ -985,6 +998,11 @@ function App() {
 }
 
 
+function Workspace() {
+  const location = useLocation();
+  return <App key={location.pathname + location.search} />;
+}
+
 ReactDOM.createRoot(
   document.getElementById("root")
 ).render(
@@ -993,7 +1011,7 @@ ReactDOM.createRoot(
       <Routes>
         <Route path="/documents/:documentId/original" element={<DocumentOriginal apiBaseUrl={API_BASE_URL} />} />
         <Route path="/passport/:publicId" element={<Passport apiBaseUrl={API_BASE_URL} />} />
-        <Route path="*" element={<App />} />
+        <Route path="*" element={<Workspace />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
