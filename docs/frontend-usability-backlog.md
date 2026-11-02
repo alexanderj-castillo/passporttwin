@@ -17,6 +17,8 @@ El [registro técnico central](technical-debt.md) enlaza UI-01/02/03 y DOC-01 co
 | UI-08 · P1 | Vigencia de snapshots informa del problema, pero el operador depende de comandos/API para actualizar; dashboard es instalación aparte. | Acceso claro a flota y refresco con estado de operación, si se incluye en alcance. No presentar snapshots viejos como resultados vigentes. | API refresh, URL Metabase y definición del rol operador |
 | UI-09 · P2 | La demo de defensa necesita una historia corta y repetible. | Recorrido guiado con caso rotulado, datos preparados, evidencia de antes/después, restauración reproducible y vídeo alternativo. | Producto estable, resultados finales y duración de defensa |
 
+Seguimiento UI-01: implementado/probado en [PR #29](https://github.com/projects-i40-ap/passporttwin/pull/29), pendiente de revisión/integración. Las observaciones de la tabla describen la base inspeccionada; no se declara cerrado por existir una PR.
+
 P0 bloquea tareas o interpreta incorrectamente el estado. P1 mejora la operación y su comprensión; P2 prepara la presentación. No hace falta implementar cada extensión del backlog para cerrar el TFM: acordar qué tareas se defenderán y validar su recorrido completo.
 
 La comprobación integrada no prueba que la UI permita hacer todo lo que existe en la API. Tampoco sustituye a sesiones con usuarios; las métricas humanas solo se recogerán después del piloto y congelación.

@@ -15,7 +15,7 @@ Actualizado: **02/11/2026**. Inventario técnico central; incluye defectos confi
 
 | ID / prioridad | Tipo / estado | Problema e impacto | Evidencia y correspondencia | Criterio de cierre |
 | --- | --- | --- | --- | --- |
-| TD-01 · P0 | Defecto de recorrido / abierto, confirmado | Desde el pasaporte se revisan campos pero no se abre el PDF original. Bloquea recuperar el certificado en EXP-07 CERT. | `frontend/src/Passport.jsx`, OpenAPI y Chromium del ensayo; UI-01 del backlog. | Acción separada para original y revisión; archivo correcto servido por ID, hash coherente, error de ausencia legible y sin exponer rutas internas; prueba desde UI. |
+| TD-01 · P0 | Implementado y probado en [PR #29](https://github.com/projects-i40-ap/passporttwin/pull/29); pendiente de revisión/integración | Desde el pasaporte se revisan campos pero no se abre el PDF original. Bloquea recuperar el certificado en EXP-07 CERT. | `frontend/src/Passport.jsx`, OpenAPI y Chromium del ensayo; UI-01 del backlog. | Acción separada para original y revisión; archivo correcto servido por ID, hash coherente, error de ausencia legible y sin exponer rutas internas; prueba desde UI. |
 | TD-02 · P0 | Defecto de recorrido / abierto, confirmado | Revalidar devuelve ACCEPTED pero no crea calibración. La UI anuncia aceptación sin ofrecer materialización canónica. | `frontend/src/main.jsx`, endpoints `revalidate`/`accept`; ensayo: cero calibraciones tras revalidar y una tras `/accept`; UI-02. | Fases y estado visibles; materializar desde UI con resultado verificable, historial actualizado y tratamiento de repetición/409. No confundir estado del staging con ingesta canónica. |
 | TD-03 · P0 | Inconsistencia de estados / abierto, confirmado | Documento ACCEPTED conserva campos STAGING («Pendiente de validación»). Dificulta saber qué queda pendiente. | `documents.py`, `presentation.js` y Chromium; UI-03. | Semántica por campo/documento/materialización acordada y consistente en API/UI; preservar RAW y correcciones; verificación del recorrido. |
 | TD-04 · P0 para ampliar formatos | Defecto del extractor / abierto, confirmado | `Serial Number: CLOSEOUT-A` produce `Number`; no encuentra el activo. `Serial:` funciona. | `backend/app/services/document_identity.py`, respuesta real del ensayo; DOC-01. | Etiquetas soportadas extraídas correctamente y regresiones de variantes, múltiples series y orden; no reciclar esa regresión como evaluación final independiente. |
@@ -46,6 +46,10 @@ Actualizado: **02/11/2026**. Inventario técnico central; incluye defectos confi
 - **Producto/diseño:** el [backlog frontend](frontend-usability-backlog.md) detalla UI-06/08 y el resto de propuestas. No toda preferencia visual ni nueva acción es deuda técnica; priorizar con el equipo.
 - **Evolución de alcance:** circularidad, nuevos modelos, nuevas plantillas AAS estandarizadas y funciones futuras. La semántica específica MVP se documenta como límite de interoperabilidad, sin prometer certificación.
 - **Memoria y defensa:** [plan de cierre](project-closeout.md) e [índice metodológico](thesis/methodology-evidence-index.md). Son entregables, no deuda de implementación.
+
+## Seguimiento de cambios propuestos
+
+- TD-01/UI-01: PR #29, código `541c2a3`, endpoint original con hash y visor/descarga. 282 backend/BI pasan (12 nuevos), build correcto y siete controles Chromium. [Contrato y límites en la rama de implementación](https://github.com/projects-i40-ap/passporttwin/blob/feature/document-original/docs/architecture/document-original.md). No se marca cerrado hasta integrar; TD-02/03/04 permanecen abiertos. No se asigna responsable de revisión por inferencia.
 
 ## Mantenimiento del registro
 
