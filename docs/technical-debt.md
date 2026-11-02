@@ -59,7 +59,7 @@ Las notas siguientes conservan los checkpoints anteriores. Estado actual: TD-01�
 
 - TD-04/DOC-01: PR #32 independiente desde main, código `e280f8e`, reconoce etiqueta completa sin identidades Number/Calibration por campos vacíos. 293 backend/BI; composición #29–31 + corrección: 324 en `test/document-ui-and-label` (`2f6615e`). Pendiente integración; valores solo en otra línea se abstienen y no se reprocesan históricos.
 
-- TD-05 / UI-04/05: esta entrega implementa inicio por tareas, selección por nombres, enlaces con contexto de URL y textos comunes de auditoría. Pruebas: 332 backend/BI, build y 12 controles de navegador. Pendiente revisión/integración y piloto; carga/procesado en UI, catálogo completo de textos y diseño visual común siguen fuera de este alcance.
+- TD-05 / UI-04/05: [PR #34](https://github.com/projects-i40-ap/passporttwin/pull/34) implementa inicio por tareas, selección por nombres, enlaces con contexto de URL y textos comunes de auditoría. Pruebas: 332 backend/BI, build y 12 controles de navegador. Pendiente revisión/integración y piloto; carga/procesado en UI, catálogo completo de textos y diseño visual común siguen fuera de este alcance.
 
 ## Mantenimiento del registro
 

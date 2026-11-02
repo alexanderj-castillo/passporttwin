@@ -10,7 +10,9 @@
     "Document audit opens by filename without numeric lookup",
     "No-result search is explicit",
     "Home and picker fit mobile; desktop task layout captured",
-    "Injected document-list 503 shows Spanish error and retry recovers actual server results"
+    "Injected document-list 503 shows Spanish error and retry recovers actual server results",
+    "Selected document heading uses server filename, not an ID-only form",
+    "Advanced manual ID loading also protects unsaved edits without writing to API"
   ],
   "js_errors": [],
   "scope": "Synthetic technical navigation rehearsal",
@@ -25,5 +27,9 @@
     "frontend/src/DocumentFinder.jsx": "1706f394be0662ffbd49448cc438038b437519c113297b331448c1e55adb8671",
     "frontend/src/InstrumentFinder.jsx": "0fd292746b3941791c7e565d7aa63b243cf85949daa2dcc442025dc1cdd721ab",
     "frontend/src/workspace.css": "0a3c1e1a57a69e1ff40de6db88a4b6323d559b376c52e21dac203471c3de785e"
-  }
+  },
+  "probe_notes": [
+    "Initial Back probe assumed local filter persistence; corrected to URL-context contract.",
+    "Additional draft probe initially used an input value selector that changed after editing; corrected to stable field ID selector and both additional checks passed."
+  ]
 }
