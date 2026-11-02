@@ -38,6 +38,7 @@ app.add_middleware(
         f"http://127.0.0.1:{frontend_port}",
         f"{passport_origin.scheme}://{passport_origin.netloc}",
     ],
+    expose_headers=["Content-Disposition", "X-Content-SHA256"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

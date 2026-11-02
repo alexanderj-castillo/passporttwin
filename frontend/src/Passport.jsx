@@ -117,7 +117,13 @@ export default function Passport({ apiBaseUrl }) {
     <section id="documents" aria-labelledby="documents-heading"><h2 id="documents-heading">Documentación vinculada</h2>
       {!context ? <p>No se ha podido consultar la documentación.</p> : !context.documents.length ?
         <p>No hay documentos vinculados. Carga y vincula un certificado antes de revisar su contenido.</p> :
-        <ul>{context.documents.map(document => <li key={document.id}><Link to={`/?tab=review&documentId=${document.id}&passport=${instrument.public_id}`}>{document.original_filename}</Link> · {statusLabel(document.processing_status)}</li>)}</ul>}
+        <ul>{context.documents.map(document => <li key={document.id}>
+          <span>{document.original_filename}</span> · {statusLabel(document.processing_status)}
+          <nav className="passport-links" aria-label={`Acciones de ${document.original_filename}`}>
+            <Link to={`/documents/${document.id}/original?passport=${instrument.public_id}`}>Abrir original</Link>
+            <Link to={`/?tab=review&documentId=${document.id}&passport=${instrument.public_id}`}>Revisar campos</Link>
+          </nav>
+        </li>)}</ul>}
     </section>
   </main>;
 }

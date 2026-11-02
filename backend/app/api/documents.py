@@ -26,6 +26,7 @@ from app.services.rag_service import DocumentRAGService
 from app.services.aas_builder import AASBuilder
 from app.services.audit_service import AuditService
 from app.services.document_identity import SERIAL_CANDIDATES_FIELD
+from app.services.document_original import original_response
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -140,6 +141,14 @@ async def upload_raw_document(
         "status": new_doc.processing_status,
         "storage_path": new_doc.file_path
     }
+
+@router.get("/{document_id}/original", summary="Abre o descarga el RAW verificado del documento")
+def get_document_original(document_id: int, download: bool = False, db: Session = Depends(get_db)):
+    document = db.query(Document).filter(Document.id == document_id).first()
+    if document is None:
+        raise HTTPException(404, "Documento no encontrado.")
+    return original_response(document, STORAGE_RAW_DIR, download)
+
 
 @router.post(
     "/query",
