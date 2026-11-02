@@ -1,0 +1,25 @@
+{
+  "version": "exp06_aas2_preparation_v1",
+  "scope": "Controlled synthetic round-trip; not final independent validation",
+  "expected_submodels": ["Nameplate", "OperationalState", "CalibrationHistory", "DocumentProvenance"],
+  "instruments": [
+    {
+      "serial_number": "PTWIN-EXP06-101", "manufacturer": "Fabricante sintético", "model": "RT-101",
+      "lifecycle_state": "operational", "criticality": "HIGH", "location": "Laboratorio Café", "installed_at": "2024-01-01",
+      "magnitude": "Pressure",
+      "calibrations": [
+        {"id": 31, "calibration_date": "2025-01-15", "next_due_date": "2026-01-15", "error_value": 0.02, "tolerance": 0.1, "result": "pass", "created_at": "2025-01-15T10:00:00"},
+        {"id": 11, "calibration_date": "2024-01-15", "next_due_date": "2025-01-15", "error_value": -0.0125, "tolerance": 0.1, "result": "pass", "created_at": "2024-01-15T10:00:00"}
+      ],
+      "documents": [
+        {"id": 2, "original_filename": "certificado_2025.pdf", "source_type": "PDF_CERTIFICATE", "sha256_hash": "abababababababababababababababababababababababababababababababab", "processing_status": "ACCEPTED", "uploaded_at": "2025-01-15T11:00:00"},
+        {"id": 1, "original_filename": "certificado_2024.pdf", "source_type": "PDF_CERTIFICATE", "sha256_hash": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd", "processing_status": "ACCEPTED", "uploaded_at": "2024-01-15T11:00:00"}
+      ]
+    },
+    {
+      "serial_number": "PTWIN-EXP06-102", "manufacturer": "Synthetic Maker", "model": "RT-102",
+      "lifecycle_state": "blocked", "criticality": "MEDIUM", "location": "", "installed_at": null,
+      "magnitude": "Temperature", "calibrations": [], "documents": []
+    }
+  ]
+}
