@@ -60,7 +60,7 @@ def seed_demo(db,today=None):
                 db.add(document);db.flush()
                 for name,value in fields.items():
                     db.add(ExtractedField(document_id=document.id,field_name=name,raw_value=value,normalized_value=value,
-                        confidence='1.0',validation_status=status))
+                        confidence='1.0',validation_status='STAGING'))
             AuditService.log_event(db=db,entity_name='instrument_unit',entity_id=instrument.id,
                 action='DEMO_FIXTURE_CREATED',source='scripts.seed_demo',details={'synthetic':True,'scenario':title})
     db.commit()
