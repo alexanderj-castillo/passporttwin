@@ -1,0 +1,102 @@
+{
+  "experiment": "EXP-06",
+  "scope": "Controlled synthetic technical round-trip, not final validation",
+  "criterion": "100% of declared critical entries preserved at every checked boundary",
+  "git": {
+    "commit": "70860ecc35e12027ba791a937a76cfea0f3e18d7",
+    "working_tree_dirty": null,
+    "source": "caller_supplied_not_verified"
+  },
+  "python": "3.11.18",
+  "fixture_sha256": "8adc8360f100af318443c739b7c537ee8977a5a8d89df67111490989334a3539",
+  "source_url": "http://ptwin-exp06-source:4001/aasServer",
+  "target_url": "http://ptwin-exp06-target:4001/aasServer",
+  "sdk_packages": {
+    "basyx-python-sdk": "0.2.2",
+    "pyecma376-2": "1.0.1",
+    "lxml": "4.9.4",
+    "requests": "2.31.0"
+  },
+  "normalization": "BaSyx embedded asset -> separate AAS v2 asset; compound submodel references -> global references to same identifiers; REST parent removed",
+  "cases": [
+    {
+      "aas_id": "AAS_PTWIN_EXP06_101",
+      "sdk_normalization": {
+        "result": "PASS",
+        "expected_critical_entries": 129,
+        "preserved": 129,
+        "preserved_fraction": 1.0,
+        "missing": [],
+        "extra": [],
+        "changed": []
+      },
+      "aasx_read": {
+        "result": "PASS",
+        "expected_critical_entries": 129,
+        "preserved": 129,
+        "preserved_fraction": 1.0,
+        "missing": [],
+        "extra": [],
+        "changed": []
+      },
+      "target_read": {
+        "result": "PASS",
+        "expected_critical_entries": 129,
+        "preserved": 129,
+        "preserved_fraction": 1.0,
+        "missing": [],
+        "extra": [],
+        "changed": []
+      },
+      "source_critical_sha256": "887db2a4cf918a6ed0ec32f9f3350d4f523be3b197dbb98e096274c36c74a04b",
+      "package_file": "AAS_PTWIN_EXP06_101.aasx",
+      "package_sha256": "32247de097379fbb4cdba91f4ab6de1ebdedbb079926b49db76b18664d80c525",
+      "calibration_events": 2,
+      "accepted_document_references": 2
+    },
+    {
+      "aas_id": "AAS_PTWIN_EXP06_102",
+      "sdk_normalization": {
+        "result": "PASS",
+        "expected_critical_entries": 43,
+        "preserved": 43,
+        "preserved_fraction": 1.0,
+        "missing": [],
+        "extra": [],
+        "changed": []
+      },
+      "aasx_read": {
+        "result": "PASS",
+        "expected_critical_entries": 43,
+        "preserved": 43,
+        "preserved_fraction": 1.0,
+        "missing": [],
+        "extra": [],
+        "changed": []
+      },
+      "target_read": {
+        "result": "PASS",
+        "expected_critical_entries": 43,
+        "preserved": 43,
+        "preserved_fraction": 1.0,
+        "missing": [],
+        "extra": [],
+        "changed": []
+      },
+      "source_critical_sha256": "f42d70c4ab0fbdb5236decc71f09e8f5742c9bba5521d892d0c216c4a53f8d8f",
+      "package_file": "AAS_PTWIN_EXP06_102.aasx",
+      "package_sha256": "7dcdcf7b93088b5d1a55a8dcc71a54df1070f05f021c6a589bbf8f33604afd3a",
+      "calibration_events": 0,
+      "accepted_document_references": 0
+    }
+  ],
+  "execution_status": "COMPLETE",
+  "roundtrip_result": "PASS",
+  "calculated_at": "2026-11-02T09:20:05.702038+00:00",
+  "source_sha256": {
+    "experiments/run_aasx_exp06.py": "5cfc54b93acdab46bc68959ffed72b8e7b83b4323f54a1fc152efdf9ea7464cc",
+    "experiments/aasx_v2.py": "4fecd3edad36b51a6f33ef99aae427dfcb2edb511f9953af6afc6bdb900ccd59",
+    "backend/app/services/aas_builder.py": "a96e4f29abb3026cffa8738fcd7adefdb258c32f1146dfa8c539f08182aa97e5",
+    "experiments/aasx/requirements.txt": "666fea2f33eba6ee84a8fdb4facb87bfdaf48aa3b80ac8052ec1bf12b8f48735"
+  }
+}

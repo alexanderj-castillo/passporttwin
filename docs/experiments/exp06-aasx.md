@@ -36,3 +36,9 @@ El entorno opcional fija SDK 0.2.2 (AAS v2) y pip 24.0 por metadatos antiguos de
 ```sh
 PYTHONPATH=backend:experiments python -m pytest experiments/tests/test_exp06_aasx.py -q
 ```
+
+## Evidencia del 02/11/2026
+
+[Informe de ensayo controlado](evidence/exp06-controlled-2026-11-02.json): Python 3.11.18, SDK 0.2.2, dos BaSyx 1.4.0 desechables. Conservación 129/129 y 43/43 entradas críticas en las tres fronteras (normalización SDK, lectura AASX e importación/lectura destino). Diez controles unitarios pasan tanto en Python 3.11 en Docker como en Python 3.12 local. El SHA suministrado al contenedor se contrastó con `git rev-parse HEAD` en el host; el informe lo etiqueta correctamente como suministrado, pues la imagen no tiene Git.
+
+Un intento con SHA mal formado fue rechazado antes de escribir. El primer ensayo con SHA correcto detectó que el SDK omite las listas de submodelElements vacías; se añadió su equivalencia explícita con `[]` y una regresión, manteniendo la detección de pérdida de elementos no vacíos. Se recrearon solo los servidores de prueba antes del ensayo que pasa. No se convierte ese resultado en evidencia de datos reales, otras versiones AAS ni interoperabilidad universal.
