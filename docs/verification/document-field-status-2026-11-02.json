@@ -1,0 +1,27 @@
+{
+  "result": "PASS",
+  "checks": [
+    "Historical ACCEPTED fields are not inferred validated; incorporation blocked pending recorded checks",
+    "Saving one correction preserves and labels other unsaved edits",
+    "Actual serial/date checks become checked; error/tolerance remain unevaluated",
+    "Reload preserves persisted field states",
+    "Correction invalidates dependent checks; future date alone requires review after revalidation",
+    "Field states fit mobile without overflow",
+    "Historical certificate becomes eligible in UI after explicit real field validation, without automatic materialization"
+  ],
+  "js_errors": [],
+  "scope": "Synthetic technical check, not participant study",
+  "base_commit": "fa5ebe0c0d3c2357cd327ba41c2c0ef6f3590801",
+  "base_pr": 30,
+  "backend_bi_passed": 301,
+  "new_field_status_tests": 9,
+  "focused_after_audit_field_names_passed": 13,
+  "frontend_build": "PASS Node 20 / Vite 5.4.21",
+  "js_error_monitoring_scope": "First six browser checks; seventh checks historical eligibility only",
+  "source_sha256": {
+    "backend/app/services/document_field_status.py": "0e3a798eaf8979d7a6b06248a5016a8e00b5aa5d19dbbd234afa8b5a7fe2bf73",
+    "backend/app/api/documents.py": "92e4725660b6032135aeb7ba8af70e4e5643a48dfbf60659d2149540d20df2d6",
+    "backend/scripts/seed_demo.py": "16c9be5965787b7291897b55601f87c2c704269debcd14b60a375d046130f2a6",
+    "frontend/src/main.jsx": "f26026f2ac909fb3cf7173e4d4e962ed83dc6e79e60994ce14e3dd859e656c91"
+  }
+}
