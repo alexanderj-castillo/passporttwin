@@ -23,6 +23,8 @@ Seguimiento UI-02: implementado/probado en [PR #30](https://github.com/projects-
 
 Seguimiento UI-03: implementado/probado en [PR #31](https://github.com/projects-i40-ap/passporttwin/pull/31), apilada sobre #30. No se repintan históricos ni campos sin reglas como validados.
 
+Seguimiento DOC-01: implementado/probado en [PR #32](https://github.com/projects-i40-ap/passporttwin/pull/32), independiente sobre main y compatible en composición comprobada con #29–31. Pendiente de integración.
+
 P0 bloquea tareas o interpreta incorrectamente el estado. P1 mejora la operación y su comprensión; P2 prepara la presentación. No hace falta implementar cada extensión del backlog para cerrar el TFM: acordar qué tareas se defenderán y validar su recorrido completo.
 
 La comprobación integrada no prueba que la UI permita hacer todo lo que existe en la API. Tampoco sustituye a sesiones con usuarios; las métricas humanas solo se recogerán después del piloto y congelación.
