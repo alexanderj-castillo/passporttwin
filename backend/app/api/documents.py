@@ -28,6 +28,7 @@ from app.services.audit_service import AuditService
 from app.services.document_identity import SERIAL_CANDIDATES_FIELD
 from app.services.document_original import original_response
 from app.services.document_materialization import ingestion_event, materialization_state
+from app.services.document_field_status import validate_field_states, invalidate_fields, field_states
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -241,6 +242,7 @@ def process_document(
             )
         )
 
+    target_unit = None
     # 3. Reglas y Matching según el tipo de documento
     if doc.source_type == "PDF_DATASHEET":
         # Un datasheet define especificaciones de tipo, no de activo individual
@@ -257,6 +259,12 @@ def process_document(
 
         doc.processing_status = "ACCEPTED" if len(rules_failed) == 0 else "REVIEW_REQUIRED"
 
+    stored_fields = db.query(ExtractedField).filter(ExtractedField.document_id == doc.id).all()
+    validate_field_states(db, doc, stored_fields, rules_failed, target_unit)
+    AuditService.log_event(db=db, entity_name="document", entity_id=doc.id,
+        action="DOCUMENT_PROCESSED", source="api.documents.process",
+        after={"processing_status": doc.processing_status, "rules_failed": rules_failed,
+               "field_validation": field_states(stored_fields)})
     db.commit()
     db.refresh(doc)
 
@@ -549,6 +557,9 @@ def correct_extracted_field(
     old_normalized_value = field.normalized_value
     field.normalized_value = correction.normalized_value
 
+    related_fields = db.query(ExtractedField).filter(ExtractedField.document_id == doc.id).all()
+    invalidate_fields(related_fields)
+
     # Trazabilidad del diferencial de la corrección (RF-AUDIT-02).
     AuditService.log_event(
         db=db,
@@ -562,6 +573,7 @@ def correct_extracted_field(
             "document_id": doc.id,
             "field_id": field.id,
             "field_name": field.field_name,
+            "field_validation": field_states(related_fields),
         },
     )
 
@@ -574,7 +586,8 @@ def correct_extracted_field(
         "field_name": field.field_name,
         "raw_value": field.raw_value,
         "normalized_value": field.normalized_value,
-        "validation_status": field.validation_status
+        "validation_status": field.validation_status,
+        "field_validation": field_states(related_fields)
     }
 
 @router.post("/{document_id}/revalidate", summary="Revalida un documento después de la revisión humana")
@@ -616,6 +629,7 @@ def revalidate_document(
         "processing_status": doc.processing_status,
         "matched_instrument_id": doc.instrument_unit_id,
         "rules_failed": getattr(doc, "rules_failed", None),
+        "field_validation": field_states(fields),
     }
 
     # Evita conservar un matching anterior si deja de ser válido.
@@ -625,6 +639,8 @@ def revalidate_document(
         doc.processing_status = "ACCEPTED"
     else:
         doc.processing_status = "REVIEW_REQUIRED"
+
+    validate_field_states(db, doc, fields, rules_failed, target_unit)
 
     AuditService.log_event(
         db=db,
@@ -637,6 +653,7 @@ def revalidate_document(
             "processing_status": doc.processing_status,
             "matched_instrument_id": doc.instrument_unit_id,
             "rules_failed": rules_failed,
+            "field_validation": field_states(fields),
         },
         details={"document_id": doc.id},
     )
