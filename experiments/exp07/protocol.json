@@ -1,0 +1,57 @@
+{
+  "version": "exp07_traceability_v1",
+  "scope": "Paired human task study; preparation does not constitute participant evidence",
+  "methods": [
+    "manual",
+    "passport"
+  ],
+  "groups": {
+    "AB": {
+      "manual": {
+        "period": 1,
+        "variant": "A"
+      },
+      "passport": {
+        "period": 2,
+        "variant": "B"
+      }
+    },
+    "BA": {
+      "passport": {
+        "period": 1,
+        "variant": "A"
+      },
+      "manual": {
+        "period": 2,
+        "variant": "B"
+      }
+    }
+  },
+  "tasks": [
+    {
+      "id": "CERT",
+      "timeout_seconds": 180,
+      "prompt": "Localiza el instrumento indicado y entrega el certificado aceptado vigente a la fecha de referencia, con su fecha de calibración, próximo vencimiento y SHA-256.",
+      "success": "Activo, documento, fechas y hash coinciden con la clave congelada; el archivo se ha abierto. Si no hay certificado vigente, indicar su ausencia y aportar evidencia."
+    },
+    {
+      "id": "TRACE",
+      "timeout_seconds": 300,
+      "prompt": "Para el documento indicado, recupera la evidencia de su corrección y aceptación: valor original y corregido, acción, fecha y procedencia del evento.",
+      "success": "Documento y valores coinciden con la clave congelada; se citan los eventos correctos y su procedencia. Un actor ausente se comunica como no registrado, sin inferirlo."
+    }
+  ],
+  "statuses": [
+    "success",
+    "incorrect",
+    "timeout",
+    "aborted"
+  ],
+  "primary_timing_population": "Both methods successful, observer-verified and unassisted for the same participant and task",
+  "readiness": "Requires frozen equivalent A/B datasets, manual folder/table, working UI, independent answer key, consent and actual observations",
+  "proposed_sample": {
+    "participants": 6,
+    "per_group": 3,
+    "design": "Exploratory convenience sample; no power or generalization claim"
+  }
+}
