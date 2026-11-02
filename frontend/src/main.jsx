@@ -402,6 +402,7 @@ function App() {
   const [projectionWarning, setProjectionWarning] = useState("");
   const hasUnsavedChanges = fields.some(field => field.normalized_value !== savedValues[field.field_id]);
   const isMaterialized = materialization?.status === "MATERIALIZED";
+  const needsFieldValidation = fields.some(field => ["STAGING", "ACCEPTED"].includes(field.validation_status));
   const [rulesFailed, setRulesFailed] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -478,16 +479,11 @@ function App() {
         );
       }
 
-      setFields((currentFields) =>
-        currentFields.map((currentField) =>
-          currentField.field_id === data.field_id
-            ? {
-                ...currentField,
-                normalized_value: data.normalized_value,
-              }
-            : currentField
-        )
-      );
+      setFields(currentFields => currentFields.map(currentField => ({
+        ...currentField,
+        ...(currentField.field_id === data.field_id ? { normalized_value: data.normalized_value } : {}),
+        validation_status: data.field_validation?.find(item => item.field_id === currentField.field_id)?.validation_status || currentField.validation_status,
+      })));
 
       setSavedValues(current => ({ ...current, [data.field_id]: data.normalized_value }));
       setProcessingStatus("REVIEW_REQUIRED");
@@ -539,7 +535,7 @@ function App() {
   }
 
   async function materializeDocument() {
-    if (!loadedDocumentId || loading || hasUnsavedChanges || !materialization?.can_materialize) return;
+    if (!loadedDocumentId || loading || hasUnsavedChanges || needsFieldValidation || !materialization?.can_materialize) return;
     const id = loadedDocumentId;
     setLoading(true); setMessage(""); setProjectionWarning("");
     try {
@@ -720,20 +716,20 @@ function App() {
                   fontWeight: "bold",
                 }}
               >
-                {processingStatus === "ACCEPTED" ? "Validado para incorporación" : statusLabel(processingStatus)}
+                {processingStatus === "ACCEPTED" ? (needsFieldValidation ? "Aceptado en staging; comprobaciones sin registrar" : "Validado para incorporación") : statusLabel(processingStatus)}
               </span>
             </section>
           )}
 
           {loadedDocumentId && materialization && <section aria-labelledby="materialization-heading" style={{ marginTop: "24px" }}>
             <h3 id="materialization-heading">Incorporación al historial</h3>
-            <p role="status">{materialization.message}</p>
+            <p role="status">{!isMaterialized && needsFieldValidation ? "Valida los campos guardados para registrar las comprobaciones antes de incorporar." : materialization.message}</p>
             {hasUnsavedChanges && <p>Hay cambios sin guardar. Guarda las correcciones y vuelve a validar antes de continuar.</p>}
             {isMaterialized ? <>
               <p>La consulta es de solo lectura: editar estos campos no actualizaría la calibración ya incorporada.</p>
               {materialization.instrument_public_id && <Link to={`/passport/${encodeURIComponent(materialization.instrument_public_id)}`}>Ver historial en el pasaporte</Link>}
             </> : <button type="button" onClick={materializeDocument}
-              disabled={loading || hasUnsavedChanges || !materialization.can_materialize}>
+              disabled={loading || hasUnsavedChanges || needsFieldValidation || !materialization.can_materialize}>
               Incorporar calibración al historial
             </button>}
             {projectionWarning && <p role="alert">{projectionWarning}</p>}
@@ -760,6 +756,7 @@ function App() {
           {fields.length > 0 && (
             <section style={{ marginTop: "32px" }}>
               <h3>Campos extraídos</h3>
+              <p>Los estados reflejan las reglas documentales disponibles, no una certificación metrológica. Error y tolerancia no se comprueban en esta fase.</p>
 
               <div
                 style={{
@@ -858,8 +855,15 @@ function App() {
                         fontSize: "0.9rem",
                       }}
                     >
-                      Estado de validación:{" "}
-                      {statusLabel(field.validation_status)}
+                      Comprobación del campo:{" "}
+                      {field.normalized_value !== savedValues[field.field_id] ? "Cambio sin guardar" : ({
+                        STAGING: "Sin comprobación vigente registrada",
+                        ACCEPTED: "Sin comprobación vigente registrada",
+                        VALIDATED: "Comprobado por las reglas documentales",
+                        REVIEW_REQUIRED: "Requiere revisión",
+                        NOT_EVALUATED: "No evaluado por las reglas documentales",
+                        EVIDENCE: "Evidencia de solo lectura",
+                      })[field.validation_status] || statusLabel(field.validation_status)}
                     </div>
                   </article>
                 ))}
