@@ -22,10 +22,10 @@ from app.schemas.document import (
     DocumentQueryResponse,
 )
 from app.services.document_validation import validate_document_fields
-from app.services.document_identity import SERIAL_CANDIDATES_FIELD
 from app.services.rag_service import DocumentRAGService
 from app.services.aas_builder import AASBuilder
 from app.services.audit_service import AuditService
+from app.services.document_identity import SERIAL_CANDIDATES_FIELD
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
