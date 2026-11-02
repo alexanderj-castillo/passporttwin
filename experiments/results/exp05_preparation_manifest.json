@@ -1,0 +1,48 @@
+{
+  "protocol": {
+    "version": "exp05_preparation_v1",
+    "scope": "Known development generator, not independent final validation",
+    "historical_protocol_sha256": "fe5a8ed6e327e01cef7d3149933e1503be8b8da9d6d538ddedf888d6cdcfc84a",
+    "seed": 20261027,
+    "families": {
+      "pressure": 0.1,
+      "temperature": 0.5,
+      "ph": 0.2
+    },
+    "training_lengths": [
+      8,
+      16
+    ],
+    "scenarios": [
+      "stable",
+      "linear",
+      "curvature",
+      "step_change",
+      "heavy_tail",
+      "maintenance_reset"
+    ],
+    "instruments_per_cell": 3,
+    "horizons": [
+      30,
+      60,
+      90
+    ],
+    "controls": [
+      "insufficient_history",
+      "zero_variance",
+      "duplicate_dates",
+      "tolerance_changed",
+      "known_maintenance_recent",
+      "known_maintenance_recovered"
+    ],
+    "classification_threshold": 0.5,
+    "target": "Exceedance at each target date, not any crossing during the interval",
+    "baselines": "Last observed out-of-tolerance state within each eligible history; plus Gaussian persistence sharing the model predictive std on its available subset; abstain if latest date ambiguous",
+    "metrics_scope": "Model available subset; paired baseline comparison; baseline own subset; compare estimator heads only on common available forecasts",
+    "acceptance_thresholds": null
+  },
+  "dataset_sha256": "bee0dc555d2e9cbeecf70db1372d1a4e84535a4ab2070e41afdcd10169a2f034",
+  "cases": 126,
+  "generator_sha256": "23351c485a1d0eb5a60e103702f59587bb1f7057da01b3b05f90cb3346f76391",
+  "python": "3.11.17"
+}
