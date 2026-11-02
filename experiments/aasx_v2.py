@@ -97,7 +97,7 @@ def critical_snapshot(environment):
         path='submodels/'+sm['idShort']
         result[path+'/id']=list(identifier(sm))
         result[path+'/semanticId']=sm['semanticId']
-        elements(sm['submodelElements'],path)
+        elements(sm.get('submodelElements',[]),path)
     return result
 
 

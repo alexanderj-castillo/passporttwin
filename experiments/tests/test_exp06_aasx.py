@@ -102,3 +102,14 @@ def test_nonempty_repository_is_rejected_without_writes():
         def get(self,*args,**kwargs):return N(raise_for_status=lambda:None,json=lambda:[{'existing':'aas'}])
         def put(self,*args,**kwargs):raise AssertionError('No writes before emptiness guard')
     with pytest.raises(bridge.RoundtripError):bridge.require_empty(Session(),'http://test/aasServer')
+
+
+def test_empty_submodels_roundtrip(tmp_path):
+    environment=normalize_source(snapshot())
+    for sm in environment['submodels']:
+        if sm['idShort'] in ('CalibrationHistory','DocumentProvenance'):
+            sm['submodelElements']=[]
+    expected=critical_snapshot(environment)
+    path=tmp_path/'empty.aasx'
+    assert export_package(environment,path)['result']=='PASS'
+    assert compare(expected,critical_snapshot(read_package(path)))['result']=='PASS'
