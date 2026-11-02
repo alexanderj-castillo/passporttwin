@@ -43,7 +43,7 @@ def protocol_for(per_cell):
             'controls': list(CONTROLS), 'classification_threshold': .5,
             'target': 'Exceedance at each target date, not any crossing during the interval',
             'baselines': 'Last observed out-of-tolerance state within each eligible history; plus Gaussian persistence sharing the model predictive std on its available subset; abstain if latest date ambiguous',
-            'metrics_scope': 'Model available subset; paired comparison only where model and baseline both available; baseline also reported on its own subset',
+            'metrics_scope': 'Model available subset; paired baseline comparison; baseline own subset; compare estimator heads only on common available forecasts',
             'acceptance_thresholds': None}
 
 
@@ -226,6 +226,12 @@ def summarize(details, threshold):
         result[head] = {'overall':metrics(rows,threshold),
                        'by_horizon':{str(h):metrics([row for row in rows if row['horizon']==h],threshold) for h in HORIZONS},
                        'by_scenario':{s:metrics([row for row in rows if row['scenario']==s],threshold) for s in sorted({row['scenario'] for row in rows})}}
+    groups = {}
+    for row in details:
+        groups.setdefault((row['case_id'],row['horizon']),{})[row['head']] = row
+    common = [group for group in groups.values() if all(head in group and group[head]['probability'] is not None for head in HEADS)]
+    result['head_comparison_on_common_forecasts'] = {'n':len(common),
+        **{head+'_brier':sum((group[head]['probability']-group[head]['y'])**2 for group in common)/len(common) if common else None for head in HEADS}}
     return result
 
 

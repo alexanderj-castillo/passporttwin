@@ -129,3 +129,12 @@ def test_setup_failure_leaves_no_final_metrics(tmp_path,monkeypatch):
     monkeypatch.setattr('sys.argv',['runner','evaluate','--bundle',str(tmp_path/'missing'),'--output',str(output)])
     assert runner.main()==2
     assert json.loads(output.read_text())['metrics'] is None
+
+
+def test_comparison_of_estimators_uses_only_common_available_forecasts():
+    items=[c for c in cases() if c['family']=='pressure' and c['scenario'] in ('known_maintenance_recent','known_maintenance_recovered')]
+    rows=[row for item in items for row in runner.evaluate_case(item)]
+    result=runner.summarize(rows,.5)
+    assert result['core_ols']['overall']['scored']==6
+    assert result['maintenance_policy']['overall']['scored']==3
+    assert result['head_comparison_on_common_forecasts']['n']==3
