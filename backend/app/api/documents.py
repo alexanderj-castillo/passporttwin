@@ -1,7 +1,8 @@
 import os
 import hashlib
-from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, status
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from app.database.session import get_db
 from app.models.document import Document
 from datetime import date, datetime
@@ -70,6 +71,28 @@ def _serialize_audit_entry(entry):
         details=dict(details) if isinstance(details, dict) else {},
         created_at=getattr(entry, "created_at", None),
     )
+
+@router.get("", summary="Busca documentos por nombre, serie o ubicación")
+def list_documents(q: str = Query("", max_length=200), review_only: bool = False,
+                   limit: int = Query(20, ge=1, le=100), offset: int = Query(0, ge=0),
+                   db: Session = Depends(get_db)):
+    query = db.query(Document, InstrumentUnit.serial_number, InstrumentUnit.location, InstrumentUnit.public_id).outerjoin(
+        InstrumentUnit, Document.instrument_unit_id == InstrumentUnit.id)
+    if q.strip():
+        pattern = "%" + q.strip().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+        query = query.filter(or_(Document.original_filename.ilike(pattern, escape="\\"),
+                                 InstrumentUnit.serial_number.ilike(pattern, escape="\\"),
+                                 InstrumentUnit.location.ilike(pattern, escape="\\")))
+    if review_only:
+        query = query.filter(Document.processing_status.in_(["REVIEW_REQUIRED", "FAILED_EXTRACTION"]))
+    rows = query.order_by(Document.uploaded_at.desc(), Document.id.desc()).offset(offset).limit(limit + 1).all()
+    return {"items": [{"id": doc.id, "original_filename": doc.original_filename,
+                       "processing_status": doc.processing_status, "source_type": doc.source_type,
+                       "instrument_serial": serial, "location": location,
+                       "instrument_public_id": str(public_id) if public_id else None}
+                      for doc, serial, location, public_id in rows[:limit]],
+            "offset": offset, "limit": limit, "has_more": len(rows) > limit}
+
 
 @router.post("/upload", status_code=status.HTTP_201_CREATED, summary="Ingesta de archivo RAW con hash SHA-256")
 async def upload_raw_document(
@@ -441,6 +464,7 @@ def get_extracted_fields(
 
     return {
         "document_id": doc.id,
+        "original_filename": getattr(doc, "original_filename", None),
         "processing_status": doc.processing_status,
         "source_type": doc.source_type,
         "matched_instrument_id": doc.instrument_unit_id,

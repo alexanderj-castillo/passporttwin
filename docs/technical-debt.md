@@ -1,6 +1,6 @@
 # Registro de deuda técnica de PassportTwin
 
-Actualizado: **02/11/2026**. Inventario técnico central; incluye defectos confirmados, deuda de robustez/mantenimiento y revisiones pendientes, indicando la diferencia. No equivale al estado oficial de tarjetas de Notion ni declara tareas asignadas. Fuente: `main` `823a4bb`, [comprobación integrada](verification/integrated-2026-11-02.md) e inspección del código/configuración. Crear este registro no corrige hallazgos: consultar el estado y los commits de cada fila. Integraciones verificadas después en `main` `0f4f3ac`; #30/#31 estaban fusionadas solo en ramas base, pendientes de propagación a main.
+Actualizado: **02/11/2026**. Inventario técnico central; incluye defectos confirmados, deuda de robustez/mantenimiento y revisiones pendientes, indicando la diferencia. No equivale al estado oficial de tarjetas de Notion ni declara tareas asignadas. Fuente: `main` `823a4bb`, [comprobación integrada](verification/integrated-2026-11-02.md) e inspección del código/configuración. Crear este registro no corrige hallazgos: consultar el estado y los commits de cada fila. Integraciones verificadas después en `main` `602b659`: #33 ha propagado #30/#31 a main.
 
 ## Cómo usarlo
 
@@ -16,8 +16,8 @@ Actualizado: **02/11/2026**. Inventario técnico central; incluye defectos confi
 | ID / prioridad | Tipo / estado | Problema e impacto | Evidencia y correspondencia | Criterio de cierre |
 | --- | --- | --- | --- | --- |
 | TD-01 · P0 | Integrado en main por [PR #29](https://github.com/projects-i40-ap/passporttwin/pull/29), commit `9f34501`; validación final separada | Desde el pasaporte se revisan campos pero no se abre el PDF original. Bloquea recuperar el certificado en EXP-07 CERT. | `frontend/src/Passport.jsx`, OpenAPI y Chromium del ensayo; UI-01 del backlog. | Acción separada para original y revisión; archivo correcto servido por ID, hash coherente, error de ausencia legible y sin exponer rutas internas; prueba desde UI. |
-| TD-02 · P0 | Revisado/fusionado en rama por [PR #30](https://github.com/projects-i40-ap/passporttwin/pull/30); traslado a main preparado en esta entrega | Revalidar devuelve ACCEPTED pero no crea calibración. La UI anuncia aceptación sin ofrecer materialización canónica. | `frontend/src/main.jsx`, endpoints `revalidate`/`accept`; ensayo: cero calibraciones tras revalidar y una tras `/accept`; UI-02. | Fases y estado visibles; materializar desde UI con resultado verificable, historial actualizado y tratamiento de repetición/409. No confundir estado del staging con ingesta canónica. |
-| TD-03 · P0 | Revisado/fusionado en rama por [PR #31](https://github.com/projects-i40-ap/passporttwin/pull/31); traslado a main preparado en esta entrega | Documento ACCEPTED conserva campos STAGING («Pendiente de validación»). Dificulta saber qué queda pendiente. | `documents.py`, `presentation.js` y Chromium; UI-03. | Semántica por campo/documento/materialización acordada y consistente en API/UI; preservar RAW y correcciones; verificación del recorrido. |
+| TD-02 · P0 | Integrado en main por [PR #33](https://github.com/projects-i40-ap/passporttwin/pull/33), commit `602b659`; origen #30 | Revalidar devuelve ACCEPTED pero no crea calibración. La UI anuncia aceptación sin ofrecer materialización canónica. | `frontend/src/main.jsx`, endpoints `revalidate`/`accept`; ensayo: cero calibraciones tras revalidar y una tras `/accept`; UI-02. | Fases y estado visibles; materializar desde UI con resultado verificable, historial actualizado y tratamiento de repetición/409. No confundir estado del staging con ingesta canónica. |
+| TD-03 · P0 | Integrado en main por [PR #33](https://github.com/projects-i40-ap/passporttwin/pull/33), commit `602b659`; origen #31 | Documento ACCEPTED conserva campos STAGING («Pendiente de validación»). Dificulta saber qué queda pendiente. | `documents.py`, `presentation.js` y Chromium; UI-03. | Semántica por campo/documento/materialización acordada y consistente en API/UI; preservar RAW y correcciones; verificación del recorrido. |
 | TD-04 · P0 para ampliar formatos | Integrado en main por [PR #32](https://github.com/projects-i40-ap/passporttwin/pull/32), commit `0f4f3ac`; evaluación independiente separada | `Serial Number: CLOSEOUT-A` produce `Number`; no encuentra el activo. `Serial:` funciona. | `backend/app/services/document_identity.py`, respuesta real del ensayo; DOC-01. | Etiquetas soportadas extraídas correctamente y regresiones de variantes, múltiples series y orden; no reciclar esa regresión como evaluación final independiente. |
 
 ## Operación, mantenimiento y reproducibilidad
@@ -49,7 +49,7 @@ Actualizado: **02/11/2026**. Inventario técnico central; incluye defectos confi
 
 ## Historial de implementación y comprobaciones
 
-Las notas siguientes conservan los checkpoints anteriores. Estado actual: TD-01/04 integrados en main; TD-02/03 revisados en sus ramas, pendientes de integrar esta entrega en main. El candidato pasa 324 backend/BI y build frontend; [informe](verification/reviewed-documents-integration-2026-11-02.md).
+Las notas siguientes conservan los checkpoints anteriores. Estado actual: TD-01…04 integrados en main tras #33; no equivale a validación académica final. El candidato pasa 324 backend/BI y build frontend; [informe](verification/reviewed-documents-integration-2026-11-02.md).
 
 - TD-01/UI-01: PR #29, código `541c2a3`, endpoint original con hash y visor/descarga. 282 backend/BI pasan (12 nuevos), build correcto y siete controles Chromium. [Contrato y límites en la rama de implementación](https://github.com/projects-i40-ap/passporttwin/blob/feature/document-original/docs/architecture/document-original.md). No se marca cerrado hasta integrar; TD-02/03 siguen su estado en las filas del registro; TD-04 se sigue en PR #32, pendiente de integración. No se asigna responsable de revisión por inferencia.
 
@@ -58,6 +58,8 @@ Las notas siguientes conservan los checkpoints anteriores. Estado actual: TD-01/
 - TD-03/UI-03: PR #31 apilada sobre #30, código `aacd523`. Estados por comprobaciones realmente aplicadas, evidencia/no evaluado y conservación de históricos/borradores; 301 backend/BI, build y siete controles de navegador. Nueve tests nuevos y 13 focales tras metadatos de auditoría. Pendiente integración; no amplía reglas, ni corrige TD-04.
 
 - TD-04/DOC-01: PR #32 independiente desde main, código `e280f8e`, reconoce etiqueta completa sin identidades Number/Calibration por campos vacíos. 293 backend/BI; composición #29–31 + corrección: 324 en `test/document-ui-and-label` (`2f6615e`). Pendiente integración; valores solo en otra línea se abstienen y no se reprocesan históricos.
+
+- TD-05 / UI-04/05: esta entrega implementa inicio por tareas, selección por nombres, enlaces con contexto de URL y textos comunes de auditoría. Pruebas: 332 backend/BI, build y 12 controles de navegador. Pendiente revisión/integración y piloto; carga/procesado en UI, catálogo completo de textos y diseño visual común siguen fuera de este alcance.
 
 ## Mantenimiento del registro
 
