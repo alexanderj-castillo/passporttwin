@@ -1,0 +1,106 @@
+{
+  "scope": "Integrated synthetic technical rehearsal; not final experimental validation",
+  "main_commit": "823a4bb061c0ca855636fe5052c6b312131765de",
+  "recorded_at": "2026-11-02T17:39:32.595321+00:00",
+  "backend_bi": {
+    "passed": 270,
+    "warnings": [
+      "Requests dependency compatibility warning",
+      "Starlette BlockingPortal deprecation"
+    ],
+    "python": "3.11"
+  },
+  "experimental_tool_tests": {
+    "passed": 32,
+    "aasx": 10,
+    "exp07_analysis": 22,
+    "python": "3.11"
+  },
+  "frontend_build": {
+    "status": "PASS",
+    "node": "20.20.2",
+    "vite": "5.4.21",
+    "dependency_source": "Cached image dependencies; source mounted from main, not a fresh install"
+  },
+  "api": {
+    "checks": [
+      "Three PDFs accepted canonically; duplicate upload and materialization rejected; ambiguous series corrected and linked to D (phase 1 before internal proxy correction)",
+      "Full AAS sync, stable public UUID, QR, configured redirect and CURRENT snapshots",
+      "Four demo scenarios, six exercised fleet rows CURRENT; two initial diagnostic instruments have no snapshot, all ten dashboard SQL queries execute"
+    ],
+    "canonical_calibrations": {
+      "CLOSEOUT-C": 3,
+      "CLOSEOUT-D": 1
+    },
+    "duplicate_upload_status": 409,
+    "repeat_accept_status": 409,
+    "revalidation_materializes": false,
+    "document_original_endpoint_found": false
+  },
+  "browser": {
+    "result": "PASS_FOR_CHECKED_NAVIGATION",
+    "checks": [
+      "Search, stable passport, eight calibrations, current snapshot",
+      "Audit deep link and return",
+      "Document review deep link loads correct document",
+      "Confirmed accepted document still shows field review status and no canonical materialization action",
+      "Missing-history score unavailable; passport fits mobile"
+    ],
+    "js_errors": [],
+    "review_mobile_overflow": false,
+    "scope": "Technical browser rehearsal, not participant study"
+  },
+  "metabase": {
+    "version": {
+      "date": "2026-10-23",
+      "tag": "v0.64.3.4",
+      "hash": "3d6c89f"
+    },
+    "cards": 10,
+    "queries": 30,
+    "filter_modes": [
+      "unfiltered",
+      "location",
+      "family"
+    ],
+    "filtered_active_instruments": 4
+  },
+  "findings": [
+    "Serial Number: CLOSEOUT-A extracted as Number and triggered R-ID-01; Serial: supported.",
+    "UI lacks original PDF access.",
+    "UI revalidation accepts staging but does not materialize calibration; action absent.",
+    "Document ACCEPTED retains STAGING fields displayed as pending validation."
+  ],
+  "environment_incidents": [
+    "First PostgreSQL initialization failed because postgres user could not read mounted schema; reapplied through stdin.",
+    "Internal AAS traffic initially used inherited proxy; configured both NO_PROXY and no_proxy for disposable Docker services only.",
+    "First Metabase query attempted before BI views existed; retried with views ready and new disposable instance.",
+    "Browser diagnostic initially expected an outdated STAGING label; corrected check after reading integrated presentation mapping."
+  ],
+  "images": {
+    "backend": "1f1420649bc8",
+    "frontend": "daae8a8c406e",
+    "aasx_tool": "117df192b86c",
+    "postgres": "82903352d6fa",
+    "basyx": "1d44b0ef4f9a",
+    "metabase": "645c1977a286"
+  },
+  "local_artifacts_sha256": {
+    "api-smoke.json": "a4f817121c082e037734e0a124028334a97229e024e87e2ecfc850c1ff427a37",
+    "browser-smoke.json": "d61c029356c726a8a47ae711d740e1482aa06b8ea45e102cae2f9490cc910ab7",
+    "metabase-smoke.json": "e99faee42d17033a62c24d21ab51309007a3087caa8940100da635f10bbdc099",
+    "api_smoke_initial.py": "7ebb847999e376640fb8a611f95214778492c418820ed9aa94c094bfd0e73e3d",
+    "api_smoke.py": "e5347130aba2191d4d8c78c29a0f88f215d32e1d4228ece5f0f30ebb0fabe51b",
+    "api_resume.py": "1650ecfccca3320c4b149de36251fc30482fa2fa12ffbac00cfbb1c04d215653",
+    "browser.cjs": "f277f050f197f629b642ad52c98e6bd900e44bb764090507b9c2382b32670c97",
+    "metabase_smoke.py": "3463fcec77ef2e10cd42a3d92cb67102cfb1a06e0d2da1b40faf6669a1a95e14"
+  },
+  "not_performed": [
+    "Final independent datasets/experiments",
+    "Human usability study",
+    "Real-data evaluation",
+    "Complete accessibility audit",
+    "Full UI-only upload-to-canonical workflow",
+    "Fresh dependency installation/build image"
+  ]
+}
