@@ -19,7 +19,9 @@ El [registro técnico central](technical-debt.md) enlaza UI-01/02/03 y DOC-01 co
 
 Seguimiento UI-01: implementado/probado en [PR #29](https://github.com/projects-i40-ap/passporttwin/pull/29), pendiente de revisión/integración. Las observaciones de la tabla describen la base inspeccionada; no se declara cerrado por existir una PR.
 
-Seguimiento UI-02: implementado/probado en [PR #30](https://github.com/projects-i40-ap/passporttwin/pull/30), apilada sobre #29 y pendiente de integración. UI-03 sigue abierto.
+Seguimiento UI-02: implementado/probado en [PR #30](https://github.com/projects-i40-ap/passporttwin/pull/30), apilada sobre #29 y pendiente de integración. UI-03 se sigue en PR #31, también pendiente de integración.
+
+Seguimiento UI-03: implementado/probado en [PR #31](https://github.com/projects-i40-ap/passporttwin/pull/31), apilada sobre #30. No se repintan históricos ni campos sin reglas como validados.
 
 P0 bloquea tareas o interpreta incorrectamente el estado. P1 mejora la operación y su comprensión; P2 prepara la presentación. No hace falta implementar cada extensión del backlog para cerrar el TFM: acordar qué tareas se defenderán y validar su recorrido completo.
 
