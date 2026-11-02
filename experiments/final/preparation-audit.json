@@ -1,0 +1,190 @@
+{
+  "audit_date": "2026-11-01",
+  "base_commit": "0d9d1b9",
+  "scope": "Static inventory of historical evidence; not a final protocol freeze or experiment execution",
+  "sources": {
+    "backlog": "Latest user-designated Notion ZIP export; Notion returned 404 during preceding lookup",
+    "experiment_definitions": "PassportTwin_Documento_Base_TFM_v1.0.docx, section 21; historical context pending reconciliation with team"
+  },
+  "exp03": {
+    "manifest_samples": 20,
+    "historical_evaluated": 20,
+    "modes": {
+      "NONE": 10,
+      "FUTURE_DATE": 2,
+      "SERIAL_MISMATCH": 3,
+      "INVALID_DUE_DATE": 3,
+      "OUT_OF_TOLERANCE": 2
+    },
+    "future_date_cases": [
+      {
+        "filename": "cert_002.pdf",
+        "calibration_date": "2026-10-31",
+        "future_on_audit_date": false
+      },
+      {
+        "filename": "cert_010.pdf",
+        "calibration_date": "2026-10-31",
+        "future_on_audit_date": false
+      }
+    ],
+    "complete_files_and_historical_counts": true
+  },
+  "exp04": {
+    "historical_instruments": 60,
+    "historical_predictions": 120,
+    "historical_horizons_days": [
+      90.0,
+      180.0
+    ],
+    "dataset_present": false,
+    "note": "No final metric recomputation; raw aggregate errors mix physical units; per-instrument split is not proof of a fleet-wide calendar cutoff"
+  },
+  "files": [
+    {
+      "path": "generators/generate_batch_certificates.py",
+      "sha256": "ce7ab62867470b542d7b62e4752406b43e8747c38522ccb5b268e684100737ee",
+      "bytes": 4547
+    },
+    {
+      "path": "generators/generate_synthetic_drift_dataset.py",
+      "sha256": "03f767b3930054a4d3295a86a529c2251f5168f4f8a9aeeaac0dde796bdc2de4",
+      "bytes": 5837
+    },
+    {
+      "path": "experiments/benchmark_rules_exp03.py",
+      "sha256": "64b2b4bcba737949a47cb396ecb217c56e54dfe252d3cd800ea26064a70c9efe",
+      "bytes": 8309
+    },
+    {
+      "path": "experiments/benchmark_drift_exp04.py",
+      "sha256": "7a738647e9265e2ed4aa0717d9a5b56fa10395e13f8d1ea5aee67e121a073f45",
+      "bytes": 14353
+    },
+    {
+      "path": "experiments/results_exp03.json",
+      "sha256": "c439e98e6ff91a3939f02ddd55fd892a72931d5507b42080e6d0bcc77cc41407",
+      "bytes": 8326
+    },
+    {
+      "path": "experiments/results_exp04.json",
+      "sha256": "72bc7f80a80709bd3bafe8def564f9dd68d04d204d73c257bdcb72ffd53d2863",
+      "bytes": 53486
+    },
+    {
+      "path": "experiments/acceptance/protocol.json",
+      "sha256": "fe5a8ed6e327e01cef7d3149933e1503be8b8da9d6d538ddedf888d6cdcfc84a",
+      "bytes": 1488
+    },
+    {
+      "path": "experiments/acceptance/results.json",
+      "sha256": "2094b56b7c1e32d67d68c3e7f715e93306f55d1d26a5a291c325a0ef107ee20c",
+      "bytes": 29861
+    },
+    {
+      "path": "generators/test_certificates_batch/ground_truth.json",
+      "sha256": "10ee01c07930fe30af5badd48daa43ac5bb8b41f396e59c18bb5d681147577d8",
+      "bytes": 7521
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_001.pdf",
+      "sha256": "99300af4d137ae2463276211aace954b827d09379493b214d3729838ce2ece29",
+      "bytes": 1753
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_002.pdf",
+      "sha256": "f03fb9636520a71926f7e38c3a150330e9dfe331d6e8c3022f41f217fefb7156",
+      "bytes": 1739
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_003.pdf",
+      "sha256": "f22d7fdcc0f7a5f6215d63d0dd4bf2140ed331f568f41b829598108b98a5082c",
+      "bytes": 1755
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_004.pdf",
+      "sha256": "9287e14a57d045c728d5bbb40ad5a766e7859455775cabf265d3e247d756ad0e",
+      "bytes": 1767
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_005.pdf",
+      "sha256": "564c38610e064442d5129b22e3099bd70bb223cb52b6ce984b9cf95cde5511b2",
+      "bytes": 1753
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_006.pdf",
+      "sha256": "9d35197e043d04e840bc271085aa284485db2633d1d83ce73831a3806f3e64c6",
+      "bytes": 1744
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_007.pdf",
+      "sha256": "3d26ff5aff6eb5f915ebda70149d479f2991e0cea81733d2727c7dbd52bec882",
+      "bytes": 1747
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_008.pdf",
+      "sha256": "29d19a20adbc7ede83f1cd31d7c4dfbeca53838ee1e9062aaa06f41408129eec",
+      "bytes": 1753
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_009.pdf",
+      "sha256": "236370c304ee392f22ef004cf63ac96b1c2498c21b3c7173f3f01981a51f9765",
+      "bytes": 1743
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_010.pdf",
+      "sha256": "458e23f91e951392fa2129eef73f97fd209396579cb46bd3fe7b491d17336894",
+      "bytes": 1740
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_011.pdf",
+      "sha256": "88bf4c2835efd07350e7b057a8353e17b793662c3b90fcfaa16a9a6f5a1e0488",
+      "bytes": 1755
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_012.pdf",
+      "sha256": "d351b1b952f4b8519b1d907f7cba38e22e31dd47cd1364703257e07e7cde3177",
+      "bytes": 1754
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_013.pdf",
+      "sha256": "d2b7e0a32cb48ef8bb66f7b3b15115e0b502c8459df407d12a6542551bad0b2b",
+      "bytes": 1752
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_014.pdf",
+      "sha256": "2d172ed72723890fcc25df1bd3b5e597c12eb6442a509c2b276f6398808958c4",
+      "bytes": 1740
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_015.pdf",
+      "sha256": "e812e82f0ff07ace751bd47263eb996b6aca6fc7a99d60f0ca5831b716459c91",
+      "bytes": 1755
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_016.pdf",
+      "sha256": "5ef74c825743aec31ec7541a25476c4ae19f2a8ae25c753aca74705fff1ed2e1",
+      "bytes": 1740
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_017.pdf",
+      "sha256": "49fe0af2966ba8d305b8faee79a909131c1d026667372aa59ceebd7f84f1a515",
+      "bytes": 1752
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_018.pdf",
+      "sha256": "84e56d5089bcc8b286e2b70655444cb6ee29b01349107ebf8aa8384d940d0540",
+      "bytes": 1754
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_019.pdf",
+      "sha256": "ce03dafbe07f0d9d3f7f442abf53d1ee2853ce7b9cbbc35ce592e9fe512a0999",
+      "bytes": 1757
+    },
+    {
+      "path": "generators/test_certificates_batch/cert_020.pdf",
+      "sha256": "d0490047bbecf882b9fd2bf52e231b39ac14b679709eabbd822fe0b0502790a6",
+      "bytes": 1749
+    }
+  ]
+}
