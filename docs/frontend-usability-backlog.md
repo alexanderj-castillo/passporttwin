@@ -17,13 +17,11 @@ El [registro técnico central](technical-debt.md) enlaza UI-01/02/03 y DOC-01 co
 | UI-08 · P1 | Vigencia de snapshots informa del problema, pero el operador depende de comandos/API para actualizar; dashboard es instalación aparte. | Acceso claro a flota y refresco con estado de operación, si se incluye en alcance. No presentar snapshots viejos como resultados vigentes. | API refresh, URL Metabase y definición del rol operador |
 | UI-09 · P2 | La demo de defensa necesita una historia corta y repetible. | Recorrido guiado con caso rotulado, datos preparados, evidencia de antes/después, restauración reproducible y vídeo alternativo. | Producto estable, resultados finales y duración de defensa |
 
-Seguimiento UI-01: implementado/probado en [PR #29](https://github.com/projects-i40-ap/passporttwin/pull/29), pendiente de revisión/integración. Las observaciones de la tabla describen la base inspeccionada; no se declara cerrado por existir una PR.
+Seguimiento al 02/11/2026 tras comprobar GitHub y main `0f4f3ac`:
 
-Seguimiento UI-02: implementado/probado en [PR #30](https://github.com/projects-i40-ap/passporttwin/pull/30), apilada sobre #29 y pendiente de integración. UI-03 se sigue en PR #31, también pendiente de integración.
-
-Seguimiento UI-03: implementado/probado en [PR #31](https://github.com/projects-i40-ap/passporttwin/pull/31), apilada sobre #30. No se repintan históricos ni campos sin reglas como validados.
-
-Seguimiento DOC-01: implementado/probado en [PR #32](https://github.com/projects-i40-ap/passporttwin/pull/32), independiente sobre main y compatible en composición comprobada con #29–31. Pendiente de integración.
+- UI-01 (#29) y DOC-01 (#32) integrados en main.
+- UI-02 (#30) y UI-03 (#31) revisados y fusionados en sus ramas base; todavía ausentes de main. Esta entrega prepara el traslado conjunto, con 324 backend/BI y build correctos.
+- Las observaciones de la tabla describen el problema original; el [registro técnico](technical-debt.md) conserva estado/evidencia. No se confunde PR cerrada con presencia en main.
 
 P0 bloquea tareas o interpreta incorrectamente el estado. P1 mejora la operación y su comprensión; P2 prepara la presentación. No hace falta implementar cada extensión del backlog para cerrar el TFM: acordar qué tareas se defenderán y validar su recorrido completo.
 
