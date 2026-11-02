@@ -1,0 +1,25 @@
+{
+  "result": "PASS",
+  "checks": [
+    "Passport opens original with PDF frame and verified SHA",
+    "Browser download has original filename and exact stored SHA",
+    "Review link follows loaded document, context and refresh work",
+    "Viewer and long hash fit mobile",
+    "Missing RAW produces readable error without filesystem path",
+    "Tampered RAW is blocked with integrity message",
+    "Unknown document shows 404 message"
+  ],
+  "js_errors": [],
+  "download_sha256": "de6565a04f1959f95b741236e2771d893c66ddfe490ffd1acee5f8b82cff49e1",
+  "scope": "Technical synthetic browser check, not human study",
+  "base_commit": "823a4bb061c0ca855636fe5052c6b312131765de",
+  "backend_bi_passed": 282,
+  "new_endpoint_tests": 12,
+  "frontend_build": "PASS Node 20 / Vite 5.4.21",
+  "native_pdf_viewer": "Chromium PDF extension loaded; rendered certificate inspected",
+  "source_sha256": {
+    "backend/app/services/document_original.py": "6040d489bcdf8b306377c87b6e1adade893041c2eadb58a7b5fcf9eecd79f1cb",
+    "backend/app/api/documents.py": "68bfcb5697a7ce3e9be401d27585b1013f224edc7234f70f87f50daca53277cf",
+    "frontend/src/DocumentOriginal.jsx": "b2e37f75b7908a5afea04ff7b7571d3a32c571c9ad918816ccba057e3d692fcc"
+  }
+}

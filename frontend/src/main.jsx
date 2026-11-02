@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Link, useSearchParams } from "react-router-dom";
 import Passport from "./Passport";
+import DocumentOriginal from "./DocumentOriginal";
 import InstrumentFinder from "./InstrumentFinder";
 import { statusLabel } from "./presentation";
 
@@ -392,6 +393,7 @@ function App() {
   /* Estado de la vista de revisión documental (pestaña "review"). */
   const [activeTab, setActiveTab] = useState(initialTab);
   const [documentId, setDocumentId] = useState(initialDocument);
+  const [loadedDocumentId, setLoadedDocumentId] = useState(null);
   const [processingStatus, setProcessingStatus] = useState("");
   const [fields, setFields] = useState([]);
   const serialCandidates = candidateSerials(fields.find((field) => field.field_name === "serial_candidates")?.raw_value);
@@ -425,10 +427,12 @@ function App() {
       }
 
       setProcessingStatus(data.processing_status);
+      setLoadedDocumentId(data.document_id);
       setFields(data.fields);
       setMessage("Documento cargado.");
     } catch (error) {
       setProcessingStatus("");
+      setLoadedDocumentId(null);
       setFields([]);
       setMessage(error.message);
     } finally {
@@ -674,6 +678,10 @@ function App() {
               </button>
             </div>
           </section>
+
+          {loadedDocumentId && (
+            <p><Link to={`/documents/${loadedDocumentId}/original${params.get("passport") ? `?passport=${encodeURIComponent(params.get("passport"))}` : ""}`}>Abrir original</Link></p>
+          )}
 
           {processingStatus && (
             <section style={{ marginTop: "24px" }}>
@@ -941,6 +949,7 @@ ReactDOM.createRoot(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
+        <Route path="/documents/:documentId/original" element={<DocumentOriginal apiBaseUrl={API_BASE_URL} />} />
         <Route path="/passport/:publicId" element={<Passport apiBaseUrl={API_BASE_URL} />} />
         <Route path="*" element={<App />} />
       </Routes>
