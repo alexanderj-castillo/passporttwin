@@ -1,0 +1,8 @@
+# Tool-only AAS v2 SDK; install with pip==24.0 (legacy upstream metadata).
+basyx-python-sdk==0.2.2
+pyecma376-2==1.0.1
+python-dateutil==2.9.0.post0
+lxml==4.9.4
+urllib3==1.26.20
+requests==2.31.0
+pytest==8.3.3
