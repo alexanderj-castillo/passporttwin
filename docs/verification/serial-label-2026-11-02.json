@@ -1,0 +1,41 @@
+{
+  "scope": "Known synthetic regression, not independent final EXP-01/02 validation",
+  "base_main": "823a4bb061c0ca855636fe5052c6b312131765de",
+  "code_commit": "e280f8ead5a49ecab9827b680b76656d18482b10",
+  "before_fix": {
+    "focused_failed": 14,
+    "focused_passed": 5
+  },
+  "after_fix": {
+    "focused_passed": 19,
+    "real_pdf_api_database_cases": 4,
+    "standalone_backend_bi_passed": 293
+  },
+  "combined_pending_prs": {
+    "branch": "test/document-ui-and-label",
+    "commit": "2f6615e464588789451131c63b1750c2116df549",
+    "tree": "8a69a6fc230fe8547c043ab62f51713eb3ea6248",
+    "base": "PR #31 over #30 over #29",
+    "backend_bi_passed": 324,
+    "integrated_into_main": false
+  },
+  "environment": "Docker Python 3.11 / PostgreSQL 17; existing backend image dependencies",
+  "checks": [
+    "Complete Serial Number labels, case and horizontal spacing",
+    "Existing Serial, S/N, Número de Serie labels",
+    "No phantom Number or next-line Calibration identity when value missing",
+    "Multiple distinct series preserve review/abstention; repeated same serial remains single",
+    "Real uploaded PDFs and matching with adversarial Number instrument in catalogue"
+  ],
+  "source_sha256": {
+    "backend/app/services/document_identity.py": "c1853b1d29f4ebac05cc7e2a26997fefd7776a55ea96ca99742959bd0a62af41",
+    "backend/tests/test_serial_label.py": "3b25d7dc7e3436d657963526f63dc7bfed6bdc55506f992507c4426d9528ebf8",
+    "backend/tests/test_serial_label_pdf.py": "63eb6b0890af32ad47158031b44470d991cd246d8d3b989e689d395c5a8dfac3"
+  },
+  "limitations": [
+    "Same-line label/value; next-line-only values abstain",
+    "No OCR, new serial alphabet or retroactive reprocesing",
+    "Known regression cases do not constitute independent evaluation",
+    "Existing Requests and Starlette warnings persist"
+  ]
+}
