@@ -1,0 +1,13 @@
+{
+  "study_id": "",
+  "app_commit": "",
+  "frozen_at": "",
+  "reference_date": "",
+  "protocol_sha256": "",
+  "variant_sha256": {"A": "", "B": ""},
+  "baseline_sha256": {"A": "", "B": ""},
+  "passport_snapshot_sha256": {"A": "", "B": ""},
+  "answer_key_sha256": "",
+  "environment_ref": "",
+  "consent_record_ref": ""
+}

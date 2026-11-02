@@ -1,0 +1,15 @@
+name: EXP-07 observation analysis
+on:
+  pull_request:
+    paths: ['experiments/analyze_exp07.py', 'experiments/exp07/**', 'experiments/tests/test_exp07_analysis.py', '.github/workflows/exp07.yml']
+  workflow_dispatch:
+jobs:
+  observation-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pytest==8.3.3
+      - run: python -m pytest experiments/tests/test_exp07_analysis.py -q
