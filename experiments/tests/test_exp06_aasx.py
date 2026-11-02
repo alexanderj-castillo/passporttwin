@@ -105,11 +105,11 @@ def test_nonempty_repository_is_rejected_without_writes():
 
 
 def test_empty_submodels_roundtrip(tmp_path):
-    environment=normalize_source(snapshot())
+    environment=bridge.normalize_source(snapshot())
     for sm in environment['submodels']:
         if sm['idShort'] in ('CalibrationHistory','DocumentProvenance'):
             sm['submodelElements']=[]
-    expected=critical_snapshot(environment)
+    expected=bridge.critical_snapshot(environment)
     path=tmp_path/'empty.aasx'
-    assert export_package(environment,path)['result']=='PASS'
-    assert compare(expected,critical_snapshot(read_package(path)))['result']=='PASS'
+    assert bridge.export_package(environment,path)['result']=='PASS'
+    assert bridge.compare(expected,bridge.critical_snapshot(bridge.read_package(path)))['result']=='PASS'
