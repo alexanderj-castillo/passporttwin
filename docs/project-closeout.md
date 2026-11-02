@@ -4,6 +4,8 @@ Encargo de Pau: comenzar la comprobación integrada y preparación del cierre; i
 
 Este es un plan de trabajo derivado de la conversación; no sustituye estados oficiales de Notion. Fuente histórica: exportación del backlog indicada por Pau. No se ha editado Notion. Las PR #19–27 están integradas en `main` `823a4bb`; la evidencia técnica actual se registra en [comprobación integrada](verification/integrated-2026-11-02.md).
 
+La deuda de implementación y las revisiones de robustez se centralizan en el [registro técnico](technical-debt.md), separado de validación académica y alcance futuro.
+
 ## Orden y condiciones
 
 | Orden | Acción | Necesitamos | Condición para avanzar |

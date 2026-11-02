@@ -232,14 +232,14 @@ Four synthetic scenarios support local rehearsal: healthy, expired calibration, 
 The current MVP has known limitations that are intentionally kept visible:
 
 - Eclipse BaSyx currently uses in-memory persistence in the development environment;
-- `/documents/{id}/accept` is not yet idempotent;
+- Sequential repeat materialization is rejected by `R-DUP-ACCEPT` (HTTP 409); concurrent acceptance and a retry-safe response contract have not been verified;
 - AAS synchronization does not yet implement robust retry and recovery policies;
 - synchronization error reporting can be improved;
 - some AAS semantics are PassportTwin-specific rather than standardized templates;
 - synthetic risk evaluation is available, but analytical outputs still require final experimental and real-world validation;
 - the implemented BI and passport workflows still need final end-to-end rehearsal and shared-environment configuration.
 
-These limitations are treated as implementation or research debt and are not presented as validated capabilities.
+The [technical debt register](docs/technical-debt.md) tracks confirmed defects, maintenance work and checks still to perform, with priorities, evidence and closure criteria. Experimental validation and future product scope are tracked separately; these limitations are not presented as validated capabilities.
 
 ---
 

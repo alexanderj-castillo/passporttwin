@@ -1,0 +1,52 @@
+# Registro de deuda técnica de PassportTwin
+
+Actualizado: **02/11/2026**. Inventario técnico central; incluye defectos confirmados, deuda de robustez/mantenimiento y revisiones pendientes, indicando la diferencia. No equivale al estado oficial de tarjetas de Notion ni declara tareas asignadas. Fuente: `main` `823a4bb`, [comprobación integrada](verification/integrated-2026-11-02.md) e inspección del código/configuración. Los hallazgos todavía no se han corregido por crear este documento.
+
+## Cómo usarlo
+
+- **P0:** bloquea una tarea del ensayo o puede hacer interpretar incorrectamente el resultado. Resolver antes del piloto afectado.
+- **P1:** mejora la operación, robustez o reproducibilidad. Resolver antes del uso al que afecta o aceptar explícitamente la limitación para el TFM.
+- **P2:** mantenimiento posterior o mejora que puede aplazarse con alcance documentado.
+- **Confirmado:** existe evidencia de código, configuración o ejecución; consultar la columna fuente. **Por verificar:** falta comprobar el riesgo; no es un fallo demostrado.
+- Todos los registros abiertos están **sin asignar** hasta acuerdo de Pau/Alexander. Al iniciar, registrar responsable y rama/PR. Cerrar solo con criterio comprobado, evidencia y commit integrado; conservar la fila como histórico.
+- Una PR propuesta no convierte una deuda en resuelta. La prioridad no exige implementar robustez de producción para defender un MVP; sí exige explicar qué queda fuera y no afirmar capacidades no demostradas.
+
+## Antes del piloto y evaluación de tareas
+
+| ID / prioridad | Tipo / estado | Problema e impacto | Evidencia y correspondencia | Criterio de cierre |
+| --- | --- | --- | --- | --- |
+| TD-01 · P0 | Defecto de recorrido / abierto, confirmado | Desde el pasaporte se revisan campos pero no se abre el PDF original. Bloquea recuperar el certificado en EXP-07 CERT. | `frontend/src/Passport.jsx`, OpenAPI y Chromium del ensayo; UI-01 del backlog. | Acción separada para original y revisión; archivo correcto servido por ID, hash coherente, error de ausencia legible y sin exponer rutas internas; prueba desde UI. |
+| TD-02 · P0 | Defecto de recorrido / abierto, confirmado | Revalidar devuelve ACCEPTED pero no crea calibración. La UI anuncia aceptación sin ofrecer materialización canónica. | `frontend/src/main.jsx`, endpoints `revalidate`/`accept`; ensayo: cero calibraciones tras revalidar y una tras `/accept`; UI-02. | Fases y estado visibles; materializar desde UI con resultado verificable, historial actualizado y tratamiento de repetición/409. No confundir estado del staging con ingesta canónica. |
+| TD-03 · P0 | Inconsistencia de estados / abierto, confirmado | Documento ACCEPTED conserva campos STAGING («Pendiente de validación»). Dificulta saber qué queda pendiente. | `documents.py`, `presentation.js` y Chromium; UI-03. | Semántica por campo/documento/materialización acordada y consistente en API/UI; preservar RAW y correcciones; verificación del recorrido. |
+| TD-04 · P0 para ampliar formatos | Defecto del extractor / abierto, confirmado | `Serial Number: CLOSEOUT-A` produce `Number`; no encuentra el activo. `Serial:` funciona. | `backend/app/services/document_identity.py`, respuesta real del ensayo; DOC-01. | Etiquetas soportadas extraídas correctamente y regresiones de variantes, múltiples series y orden; no reciclar esa regresión como evaluación final independiente. |
+
+## Operación, mantenimiento y reproducibilidad
+
+| ID / prioridad | Tipo / estado | Deuda e impacto | Fuente / alcance | Criterio de cierre |
+| --- | --- | --- | --- | --- |
+| TD-05 · P1 | Usabilidad / abierto, confirmado | Navegación por IDs, mezcla de idiomas/etiquetas técnicas y feedback desigual entre pantallas. | `main.jsx`, `InstrumentFinder.jsx`; UI-04/05. No incluye automáticamente todo rediseño cosmético. | Tareas acordadas realizables sin memorizar IDs, términos y mensajes coherentes, regreso/contexto preservados; comprobación de tareas y piloto. |
+| TD-06 · P1 antes de uso compartido persistente | Infraestructura / abierto, confirmado | BaSyx usa memoria en configuración de desarrollo; reiniciar puede perder la proyección. | README, `docker-compose.yml`; PostgreSQL sigue siendo canónico y `/sync` permite reconstruir. | Persistencia y recuperación demostradas en entorno elegido, o alcance MVP explícito con reconstrucción ensayada tras reinicio. No afirmar almacenamiento AAS duradero mientras tanto. |
+| TD-07 · P1 antes de operación continuada | Robustez / abierto, confirmado | Sin política robusta de reintentos/recuperación AAS; errores se registran en logs y estado global sin detalle suficiente para el operador. | `backend/app/services/aas_builder.py`, endpoint `/sync`, README. | Fallos parciales identificables, política acotada de recuperación y comprobación de indisponibilidad/reintento sin duplicar o degradar el estado canónico. |
+| TD-08 · P1 para entorno reproducible | Dependencias / abierto, confirmado | Aviso de compatibilidad Requests/urllib3/chardet y deprecación Starlette/BlockingPortal. Suites verdes no demuestran compatibilidad futura. | Salida de la suite integrada y `backend/requirements.txt`; no se diagnostica vulnerabilidad por estos avisos. | Entorno compatible reproducible, avisos eliminados mediante versiones compatibles y comprobación de rutas relevantes; registrar versiones efectivas. |
+| TD-09 · P1 antes de congelación final | Reproducibilidad / abierto, confirmado | Frontend sin lockfile versionado y usa `npm install`; Compose usa Metabase `latest`; imágenes base con tags móviles. | `frontend/package.json`, `frontend/Dockerfile`, `.github/workflows/ci.yml`, `docker-compose.yml`. Último build usa dependencias cacheadas, no instalación limpia. | Lockfile y estrategia de instalación definida; versiones/digests registrados para el ensayo; build limpio y verificación de compatibilidad. No es necesario inmovilizar toda actualización futura. |
+| TD-10 · P1 para repetición E2E | Automatización / abierto, confirmado | El ensayo integrado utiliza probes de sesión con IDs/rutas efímeros; sus hashes quedan registrados, pero no hay un nuevo runner portable de ese recorrido completo. | [Informe integrado](verification/integrated-2026-11-02.md). Los runners EXP individuales sí existen. | Recorrido seleccionado reproducible desde checkout limpio, con fixtures/guardas de aislamiento, informe y limpieza de recursos propios; errores conservados sin omitir pasos. |
+| TD-11 · P2 | Dependencia heredada / abierto, confirmado | Herramienta AASX v2 requiere SDK 0.2.2 y pip 24.0 por metadatos antiguos. Está aislada de producción. | `experiments/aasx/requirements.txt`, Dockerfile y [EXP-06](experiments/exp06-aasx.md). | Mantener entorno aislado verificable y ruta de mantenimiento documentada; una futura migración debe preservar perfil y referencias mediante round-trip, sin cambiar versión AAS silenciosamente. |
+
+## Revisiones pendientes: no son defectos demostrados
+
+| ID / prioridad | Estado | Qué comprobar | Evidencia actual y condición de cierre |
+| --- | --- | --- | --- |
+| REV-01 · P1 según despliegue | Por verificar, sin asignar | Durabilidad de RAW y restauración coherente con PostgreSQL al recrear contenedores/desplegar. | El ensayo no demostró conservación de RAW a través de recreaciones. Revisar configuración elegida y probar restauración/lectura con hashes; no afirmar pérdida en el entorno de Pau sin comprobarlo. |
+| REV-02 · P1 según concurrencia | Por verificar, sin asignar | Aceptación simultánea del mismo documento y atomicidad de la protección de materialización. | Existe guarda `R-DUP-ACCEPT`; repetición secuencial devuelve 409 y no duplica en ensayo. Concurrencia no probada. Si aplica, demostrar una sola materialización bajo concurrencia y definir contrato de repetición; no registrar «sin protección» como hecho. |
+| REV-03 · P1 antes de piloto UI | Por verificar, sin asignar | Accesibilidad y responsive del recorrido completo. | Hay comprobaciones de pantallas a 1280/390 px, no auditoría completa. Verificar teclado, foco, etiquetas, contraste y tablas/errores en tareas; enlazar UI-07. |
+
+## Fuera de este registro
+
+- **Validación/investigación:** [preparación EXP-01…07](experiments/final-execution-readiness.md), criterios, muestra independiente, calibración de probabilidades y sesiones humanas. No son bugs por estar pendientes. Los datos reales son opcionales; sintéticos explícitos no bloquean el cierre acordado.
+- **Producto/diseño:** el [backlog frontend](frontend-usability-backlog.md) detalla UI-06/08 y el resto de propuestas. No toda preferencia visual ni nueva acción es deuda técnica; priorizar con el equipo.
+- **Evolución de alcance:** circularidad, nuevos modelos, nuevas plantillas AAS estandarizadas y funciones futuras. La semántica específica MVP se documenta como límite de interoperabilidad, sin prometer certificación.
+- **Memoria y defensa:** [plan de cierre](project-closeout.md) e [índice metodológico](thesis/methodology-evidence-index.md). Son entregables, no deuda de implementación.
+
+## Mantenimiento del registro
+
+Por cada fila conservar ID, prioridad, estado, responsable, evidencia y criterio. Añadir enlace a PR al iniciar y commit integrado al cerrar; fecha y resultado de comprobación obligatorios. Si cambia una hipótesis tras inspección, corregirla y preservar qué evidencia motivó el cambio. Vincular desde Notion cuando se actualice, sin afirmar que el plan externo se ha sincronizado por editar este archivo.

@@ -2,6 +2,8 @@
 
 Inspección de `main` `823a4bb` y ensayo aislado del 02/11/2026. Es un punto de partida para Pau/Alexander, no una lista de preferencias visuales ya aprobadas. No se ha modificado el producto en esta entrega.
 
+El [registro técnico central](technical-debt.md) enlaza UI-01/02/03 y DOC-01 como TD-01…04; este backlog conserva el detalle de producto y diseño. Actualizar ambos al resolver un elemento compartido.
+
 | ID / prioridad | Problema y evidencia | Acción propuesta / aceptación | Dependencias |
 | --- | --- | --- | --- |
 | UI-01 · P0 | El nombre PDF del pasaporte abre el formulario de revisión; no hay ruta de descarga/visualización del original en el OpenAPI inspeccionado. EXP-07 CERT pide abrirlo. | Acción separada «Abrir original»/descargar y «Revisar campos». Servir por ID desde RAW, sin exponer rutas de infraestructura. Archivo correcto, hash coherente, 404 legible y acceso desde pasaporte/revisión. | Endpoint backend y tratamiento de archivo ausente; antes del piloto CERT |
