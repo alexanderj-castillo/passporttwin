@@ -11,6 +11,7 @@
 - Implementado en `CertificateUpload.jsx`, `DocumentFinder.jsx` y `main.jsx`. La revisión permite procesar certificados recibidos o reintentar una extracción fallida y actualiza el buscador.
 - `npm run build` y `git diff --check` correctos. Ensayo manual de Pau en el navegador: subió el PDF sintético `PTWIN-INGEST-f0c08818.pdf` (documento 5), lo procesó y observó `R-ID-01`, corrigió la serie, validó los campos e incorporó la calibración.
 - La consulta posterior a la API confirmó los eventos de subida, procesado, corrección, validación e incorporación. Calibración 27 del 06/11/2026, vinculada a `PTWIN-DEMO-REVISION`. Los IDs pertenecen al entorno aislado.
-- El ensayo de navegador cubrió el recorrido con corrección. El rechazo de duplicados se comprobó antes por API con otro PDF sintético. No se repitió la suite de backend ni se ensayó el reintento de extracción desde la UI.
+- El ensayo de navegador cubrió el recorrido con corrección. El rechazo de duplicados se comprobó antes por API con otro PDF sintético. No se repitió la suite de backend.
+- Segundo ensayo manual en navegador: un PDF sintético sin texto (documento 6) reveló que el estado guardado por la API quedaba oculto tras el HTTP 422. Tras corregir el manejo de esa respuesta, el reintento mantuvo el estado de extracción fallida, mostró el mensaje específico y dejó deshabilitada la incorporación. El frontend volvió a compilar correctamente.
 - Commit local. Configuración de Compose del ensayo excluida del commit. Revisión, PR y actualización en Notion pendientes.
 - Siguiente paso: revisar el cambio con Alexander y decidir el alcance restante de UI-04 y del piloto.

@@ -468,14 +468,16 @@ function App() {
         `${API_BASE_URL}/api/v1/documents/${id}/process?extractor=deterministic`,
         { method: "POST" },
       );
-      if (!response.ok) throw new Error();
+      // The API persists FAILED_EXTRACTION before returning 422.
+      if (!response.ok && response.status !== 422) throw new Error();
       const result = await response.json();
+      const status = response.status === 422 ? "FAILED_EXTRACTION" : result.processing_status;
       processed = true;
-      setProcessingStatus(result.processing_status);
+      setProcessingStatus(status);
       setDocumentRefresh(value => value + 1);
       await refreshDocument(id);
       setRulesFailed(result.rules_failed || []);
-      setMessage(result.processing_status === "FAILED_EXTRACTION"
+      setMessage(status === "FAILED_EXTRACTION"
         ? "No se pudieron extraer los campos del PDF."
         : "Certificado procesado. Comprueba los campos extraídos.");
     } catch {
