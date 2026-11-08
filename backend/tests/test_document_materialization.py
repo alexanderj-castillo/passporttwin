@@ -94,6 +94,7 @@ def test_unrelated_audit_does_not_mark_document_materialized(setup):
 def test_projection_failure_does_not_hide_committed_calibration(setup,monkeypatch):
     client, db, instrument = setup
     projection(monkeypatch,False)
+    monkeypatch.setattr(AASBuilder, "shell_is_missing", lambda instrument: False)
     doc = certificate(db,instrument)
     response = client.post(f'/api/v1/documents/{doc.id}/accept')
     assert response.status_code==200
@@ -112,3 +113,33 @@ def test_saving_correction_requires_revalidation_before_materialization(setup):
     assert response.status_code==200
     assert client.get(f'/api/v1/documents/{doc.id}/fields').json()['materialization']['can_materialize'] is False
     assert client.post(f'/api/v1/documents/{doc.id}/accept').status_code==400
+
+
+def test_materialization_rebuilds_missing_aas_shell(setup, monkeypatch):
+    client, db, instrument = setup
+    doc = certificate(db, instrument)
+    calls = []
+
+    def sync_dynamic(instrument, calibrations, documents):
+        calls.append("dynamic")
+        assert len(calibrations) == 1
+        assert doc.id in [document.id for document in documents]
+        return "rebuild" in calls
+
+    def rebuild(instrument, instrument_type):
+        calls.append("rebuild")
+        assert instrument_type.id == instrument.instrument_type_id
+        return True
+
+    monkeypatch.setattr(AASBuilder, "sync_dynamic_submodels", sync_dynamic)
+    monkeypatch.setattr(AASBuilder, "shell_is_missing", lambda instrument: True)
+    monkeypatch.setattr(AASBuilder, "sync_shell_and_nameplate", rebuild)
+    root = f"/api/v1/documents/{doc.id}"
+    response = client.post(root + "/accept")
+
+    assert response.status_code == 200
+    assert response.json()["aas_projection"]["status"] == "UPDATED"
+    assert calls == ["dynamic", "rebuild", "dynamic"]
+    assert instrument.aas_sync_status == "SYNCED"
+    assert client.post(root + "/accept").status_code == 409
+    assert db.query(CalibrationEvent).filter_by(instrument_unit_id=instrument.id).count() == 1

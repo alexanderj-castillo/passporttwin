@@ -7,6 +7,24 @@ BASYX_AAS_URL = os.getenv("BASYX_AAS_URL", "http://basyx-aas:4001/aasServer")
 
 class AASBuilder:
     @staticmethod
+    def shell_is_missing(instrument) -> bool:
+        clean_serial = instrument.serial_number.replace("-", "_")
+        try:
+            response = requests.get(f"{BASYX_AAS_URL}/shells/AAS_{clean_serial}", timeout=4)
+        except requests.RequestException as exc:
+            logger.warning("No se pudo comprobar la existencia de la AAS: %s", exc)
+            return False
+        return response.status_code == 404
+
+    @staticmethod
+    def sync_dynamic_submodels(instrument, calibration_history, document_provenance) -> bool:
+        return all((
+            AASBuilder.sync_calibration_submodel(instrument, calibration_history),
+            AASBuilder.sync_document_provenance(instrument, document_provenance),
+            AASBuilder.sync_operational_state(instrument),
+        ))
+
+    @staticmethod
     def sync_shell_and_nameplate(instrument, instrument_type) -> bool:
         """Proyecta un activo canónico hacia Eclipse BaSyx AAS Server v1.4.0."""
         clean_serial = instrument.serial_number.replace("-", "_")
