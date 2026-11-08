@@ -11,3 +11,15 @@
 .document-results span { color: #526579; }
 .workspace-pages { display: flex; flex-wrap: wrap; gap: 12px; }
 #document-review-search, #document-audit-search { box-sizing: border-box; max-width: 100%; padding: 8px; }
+
+.document-review-actions {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid #dce6f0;
+  border-radius: 8px;
+  background: #f4f8fc;
+}
+.document-review-actions h3 { margin-top: 0; }
+.document-review-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.document-review-controls button { padding: 8px 12px; }
+.document-review-controls :focus-visible { outline: 2px solid #1755a5; outline-offset: 3px; }

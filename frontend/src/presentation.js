@@ -8,6 +8,17 @@ const statuses = {
   STALE_DATE: "Desactualizado por fecha", STALE_INPUTS: "Desactualizado por cambios en los datos",
 };
 export const statusLabel = (value) => value ? statuses[String(value).toUpperCase()] || "Sin clasificar" : "Sin datos";
+const documentFields = new Map([
+  ["serial_number", "Número de serie"],
+  ["calibration_date", "Fecha de calibración"],
+  ["next_due_date", "Próximo vencimiento"],
+  ["error_value", "Error máximo"],
+  ["tolerance", "Tolerancia"],
+  ["unit", "Unidad de medida"],
+]);
+
+export const documentFieldLabel = (name) => documentFields.get(name) ?? name;
+
 export const dateTimeLabel = (value) => {
   if (!value) return "Sin registro";
   const normalized = /(Z|[+-]\d{2}:\d{2})$/.test(value) ? value : `${value}Z`;
