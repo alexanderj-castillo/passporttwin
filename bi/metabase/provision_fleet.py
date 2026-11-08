@@ -17,26 +17,36 @@ def translated(column, mapping, alias):
     return 'CASE '+column+' '+''.join("WHEN '"+key+"' THEN '"+value+"' " for key,value in mapping.items())+"ELSE 'Sin clasificar' END AS "+alias
 
 
+TRAFFIC_STATES = {
+    "red": ("Rojo", "#B91C1C"),
+    "yellow": ("Amarillo", "#D4A017"),
+    "gray": ("Gris", "#64748B"),
+    "green": ("Verde", "#15803D"),
+}
+
+
 def cards(passport_base_url="http://localhost:5173"):
     parsed=urlsplit(passport_base_url)
     if parsed.scheme not in ('http','https') or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment or parsed.path not in ('','/'):
         raise ValueError('Passport URL must be an HTTP(S) origin without credentials or query')
     literal="'"+passport_base_url.rstrip('/').replace("'", "''")+"'"
+    traffic_labels = {state: label for state, (label, _) in TRAFFIC_STATES.items()}
+    traffic = translated("traffic_light", traffic_labels, "estado")
+    traffic_series = translated("traffic_light", traffic_labels, "serie_estado")
     definitions = [
         ("Instrumentos activos", "scalar", "SELECT COUNT(*) AS instruments FROM fleet"),
         ("Calibraciones vencidas", "scalar", "SELECT COUNT(*) AS overdue FROM fleet WHERE days_to_due < 0"),
         ("Vencen en 30 días", "scalar", "SELECT COUNT(*) AS due_soon FROM fleet WHERE days_to_due BETWEEN 0 AND 30"),
         ("Documentos vinculados por revisar", "scalar", "SELECT COALESCE(SUM(documents_to_review),0) AS reviews FROM fleet"),
-        ("Semáforo de flota", "bar", "SELECT traffic_light, COUNT(*) AS instruments FROM fleet GROUP BY traffic_light ORDER BY MIN(priority_rank)"),
+        ("Semáforo de flota", "bar", f"SELECT {traffic}, {traffic_series}, COUNT(*) AS instruments "
+         "FROM fleet GROUP BY traffic_light ORDER BY MIN(priority_rank)"),
         ("Prioridad de intervención", "table", "SELECT serial_number, family, location, traffic_light, primary_reason, days_to_due, observed_error_ratio, measurement_unit, documents_to_review, criticality FROM fleet ORDER BY priority_rank, CASE UPPER(criticality) WHEN 'HIGH' THEN 1 WHEN 'MEDIUM' THEN 2 ELSE 3 END, days_to_due NULLS LAST, instrument_id LIMIT 50"),
         ("Próximos vencimientos", "table", "SELECT serial_number, family, location, next_due_date, days_to_due FROM fleet WHERE days_to_due BETWEEN 0 AND 90 ORDER BY days_to_due, instrument_id"),
         ("Estado de snapshots analíticos", "table", "SELECT analytics_status, COUNT(*) AS instruments FROM fleet GROUP BY analytics_status ORDER BY analytics_status"),
         ("Health Score · por versión y pesos", "table", "SELECT score_method_version, score_weights::jsonb::text AS weights, COUNT(current_health_score) AS instruments_with_score, AVG(current_health_score) AS mean_health_score FROM fleet WHERE current_health_score IS NOT NULL GROUP BY score_method_version, score_weights::jsonb::text ORDER BY score_method_version, score_weights::jsonb::text"),
         ("Riesgo experimental · snapshots vigentes", "table", "SELECT serial_number, family, location, analytics_status, analytics_as_of, analytics_computed_at, score_status, score_reason, current_health_score, risk_status, risk_reason, risk_uncertainty_90, current_probability_30, current_probability_60, current_probability_90, risk_method_version, measurement_unit FROM fleet ORDER BY current_probability_90 DESC NULLS LAST, current_health_score ASC NULLS LAST, instrument_id LIMIT 50"),
     ]
-    traffic=translated('traffic_light',{'red':'Rojo','yellow':'Amarillo','gray':'Gris','green':'Verde'},'estado')
     freshness=translated('analytics_status',{'CURRENT':'Vigente','MISSING':'Sin resultado guardado','STALE_DATE':'Desactualizado por fecha','STALE_INPUTS':'Desactualizado por cambios'},'estado_resultado')
-    name,display,query=definitions[4];definitions[4]=(name,display,query.replace('SELECT traffic_light,','SELECT '+traffic+','))
     name,display,query=definitions[7];definitions[7]=(name,display,query.replace('SELECT analytics_status,','SELECT '+freshness+','))
     reasons=translated('primary_reason',{'LIFECYCLE_ALERT':'Alerta de estado','OUT_OF_TOLERANCE':'Fuera de tolerancia',
         'CALIBRATION_OVERDUE':'Calibración vencida','NO_CALIBRATION':'Sin calibración','INVALID_METROLOGY':'Valores por revisar',
@@ -75,12 +85,20 @@ def provision(url, database_id, collection_id, session, passport_base_url="http:
     })
     dashcards = []
     for index, (name, display, sql) in enumerate(definitions):
+        visualization_settings = {}
+        if name == "Semáforo de flota":
+            visualization_settings = {
+                "graph.dimensions": ["estado", "serie_estado"],
+                "graph.metrics": ["instruments"],
+                "stackable.stack_type": "stacked",
+                "series_settings": {label: {"color": color} for label, color in TRAFFIC_STATES.values()},
+            }
         card = post("card", {
             "name": name, "display": display, "collection_id": collection_id,
             "visualization_settings": {"column_settings": {
                 '["name","passport_url"]': {"view_as":"link", "link_text":"Abrir pasaporte", "column_title":"Pasaporte"},
                 '["name","measurement_unit"]': {"column_title":"Unidad del instrumento"}
-            }} if "passport_url" in sql else {},
+            }} if "passport_url" in sql else visualization_settings,
             "dataset_query": {"database": database_id, "type": "native", "native": {
                 "query": "WITH fleet AS (" + BASE + ") " + sql,
                 "template-tags": {key: {"id": key, "name": key, "display-name": key,
