@@ -411,21 +411,27 @@ def accept_document_to_canonical(document_id: int, db: Session = Depends(get_db)
 
     # 9. Proyectar los submodelos dinámicos hacia Eclipse BaSyx.
     # PostgreSQL sigue siendo Source of Truth aunque la proyección AAS falle.
-    calibration_synced = AASBuilder.sync_calibration_submodel(
-        instrument,
-        calibration_history
+    projection_updated = AASBuilder.sync_dynamic_submodels(
+        instrument, calibration_history, document_provenance
     )
+    if not projection_updated and AASBuilder.shell_is_missing(instrument):
+        projection_updated = AASBuilder.sync_shell_and_nameplate(
+            instrument, instrument.instrument_type
+        ) and AASBuilder.sync_dynamic_submodels(
+            instrument, calibration_history, document_provenance
+        )
+        if projection_updated:
+            previous_status = instrument.aas_sync_status
+            instrument.aas_sync_status = "SYNCED"
+            AuditService.log_event(
+                db=db, entity_name="instrument_unit", entity_id=instrument.id,
+                action="AAS_SYNCED", source="api.documents.accept",
+                before={"aas_sync_status": previous_status},
+                after={"aas_sync_status": "SYNCED"},
+                details={"document_id": doc.id, "scope": "missing_shell_recovery"},
+            )
+            db.commit()
 
-    provenance_synced = AASBuilder.sync_document_provenance(
-        instrument,
-        document_provenance
-    )
-
-    operational_synced = AASBuilder.sync_operational_state(
-        instrument
-    )
-
-    projection_updated = all((calibration_synced, provenance_synced, operational_synced))
     if not projection_updated:
         previous_status = instrument.aas_sync_status
         instrument.aas_sync_status = "ERROR"
