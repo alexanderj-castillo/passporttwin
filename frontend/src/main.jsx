@@ -7,7 +7,7 @@ import InstrumentFinder from "./InstrumentFinder";
 import DocumentFinder from "./DocumentFinder";
 import CertificateUpload from "./CertificateUpload";
 import "./workspace.css";
-import { statusLabel } from "./presentation";
+import { documentFieldLabel, statusLabel } from "./presentation";
 
 
 const API_BASE_URL =
@@ -569,12 +569,8 @@ function App() {
       await refreshDocument(loadedDocumentId);
       setRulesFailed(data.rules_failed || []);
 
-      if (data.processing_status === "ACCEPTED") {
-        setMessage("Campos validados. La calibración todavía no se ha incorporado al historial.");
-      } else {
-        setMessage(
-          "El documento todavía requiere revisión."
-        );
+      if (data.processing_status !== "ACCEPTED") {
+        setMessage("El documento todavía requiere revisión.");
       }
     } catch (error) {
       setMessage(error.message);
@@ -597,7 +593,6 @@ function App() {
         throw new Error(data.detail || "No se ha podido incorporar la calibración.");
       }
       if (data.status !== "CANONICAL_COMMITTED") throw new Error("No se ha podido confirmar la incorporación al historial.");
-      setMessage("Calibración incorporada al historial canónico.");
       if (data.aas_projection?.status === "ERROR") setProjectionWarning("La calibración está guardada en PostgreSQL, pero la actualización AAS no se ha completado. Revisa la sincronización del instrumento.");
       try { await refreshDocument(id); }
       catch { setMaterialization({ status: "MATERIALIZED", can_materialize: false, instrument_id: data.instrument_id, calibration_event_id: data.calibration_event_id, message: "Incorporación confirmada. Recarga el documento para consultar su estado actualizado." }); }
@@ -682,7 +677,7 @@ function App() {
           <h2>Revisión documental</h2>
 
           <p>
-            Busca el documento, comprueba su original y revisa los campos antes de incorporar una calibración al historial.
+            Sube y procesa un certificado nuevo o busca uno existente. Revisa los campos, guarda las correcciones, valida e incorpora la calibración al historial.
           </p>
 
           <CertificateUpload apiBaseUrl={API_BASE_URL} onUploaded={() => setDocumentRefresh(value => value + 1)} />
@@ -752,7 +747,7 @@ function App() {
 
           {processingStatus && (
             <section style={{ marginTop: "24px" }}>
-              <strong>Estado de los campos del documento:</strong>{" "}
+              <strong>Estado del documento:</strong>{" "}
               <span
                 style={{
                   color:
@@ -764,22 +759,31 @@ function App() {
                   fontWeight: "bold",
                 }}
               >
-                {processingStatus === "ACCEPTED" ? (needsFieldValidation ? "Aceptado en staging; comprobaciones sin registrar" : "Validado para incorporación") : statusLabel(processingStatus)}
+                {isMaterialized ? "Incorporado al historial" : processingStatus === "ACCEPTED" ? (needsFieldValidation ? "Pendiente de registrar comprobaciones" : "Validado para incorporación") : statusLabel(processingStatus)}
               </span>
             </section>
           )}
 
-          {loadedDocumentId && materialization && <section aria-labelledby="materialization-heading" style={{ marginTop: "24px" }}>
-            <h3 id="materialization-heading">Incorporación al historial</h3>
+          {loadedDocumentId && materialization && <section aria-labelledby="materialization-heading" className="document-review-actions">
+            <h3 id="materialization-heading">Revisión e incorporación</h3>
             <p role="status">{!isMaterialized && needsFieldValidation ? "Valida los campos guardados para registrar las comprobaciones antes de incorporar." : materialization.message}</p>
             {hasUnsavedChanges && <p>Hay cambios sin guardar. Guarda las correcciones y vuelve a validar antes de continuar.</p>}
             {isMaterialized ? <>
               <p>La consulta es de solo lectura: editar estos campos no actualizaría la calibración ya incorporada.</p>
               {materialization.instrument_public_id && <Link to={`/passport/${encodeURIComponent(materialization.instrument_public_id)}`}>Ver historial en el pasaporte</Link>}
-            </> : <button type="button" onClick={materializeDocument}
-              disabled={loading || hasUnsavedChanges || needsFieldValidation || !materialization.can_materialize}>
-              Incorporar calibración al historial
-            </button>}
+            </> : <div className="document-review-controls">
+              {fields.length > 0 && <a href="#extracted-fields">Ir a los campos extraídos</a>}
+              {fields.length > 0 && (needsFieldValidation || !materialization.can_materialize) ? (
+                <button type="button" onClick={revalidateDocument} disabled={loading || hasUnsavedChanges}>
+                  Validar campos guardados
+                </button>
+              ) : (
+                <button type="button" onClick={materializeDocument}
+                  disabled={loading || hasUnsavedChanges || !materialization.can_materialize}>
+                  Incorporar calibración al historial
+                </button>
+              )}
+            </div>}
             {projectionWarning && <p role="alert">{projectionWarning}</p>}
           </section>}
 
@@ -808,7 +812,7 @@ function App() {
 
           {fields.length > 0 && (
             <section style={{ marginTop: "32px" }}>
-              <h3>Campos extraídos</h3>
+              <h3 id="extracted-fields" tabIndex={-1}>Campos extraídos</h3>
               <p>Los estados reflejan las reglas documentales disponibles, no una certificación metrológica. Error y tolerancia no se comprueban en esta fase.</p>
 
               <div
@@ -838,7 +842,7 @@ function App() {
                         fontWeight: "bold",
                       }}
                     >
-                      {field.field_name === "serial_number" && serialCandidates.length > 1 ? "Serie para vincular" : field.field_name}
+                      {field.field_name === "serial_number" && serialCandidates.length > 1 ? "Serie para vincular" : documentFieldLabel(field.field_name)}
                     </div>
 
                     <div style={{ marginBottom: "12px" }}>
@@ -857,7 +861,7 @@ function App() {
                         fontWeight: "bold",
                       }}
                     >
-                      Valor normalizado
+                      Valor revisado · {documentFieldLabel(field.field_name)}
                     </label>
 
                     <div
@@ -921,18 +925,6 @@ function App() {
                   </article>
                 ))}
               </div>
-
-              <button
-                type="button"
-                onClick={revalidateDocument}
-                disabled={loading || isMaterialized || hasUnsavedChanges}
-                style={{
-                  marginTop: "24px",
-                  padding: "10px 16px",
-                }}
-              >
-                Validar campos guardados
-              </button>
             </section>
           )}
         </section>
