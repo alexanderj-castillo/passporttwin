@@ -31,6 +31,16 @@ def test_dashboard_cards_filters_and_layout_are_created_without_deleting_existin
         assert card['dataset_query']['database'] == 2
         assert card['collection_id'] == 3
         assert set(card['dataset_query']['native']['template-tags']) == {'family','location'}
+    traffic_card = next(card for _, card in session.posts[1:] if card["name"] == "Semáforo de flota")
+    settings = traffic_card["visualization_settings"]
+    assert settings["graph.dimensions"] == ["estado", "serie_estado"]
+    assert settings["graph.metrics"] == ["instruments"]
+    assert settings["series_settings"] == {
+        "Rojo": {"color": "#B91C1C"},
+        "Amarillo": {"color": "#D4A017"},
+        "Gris": {"color": "#64748B"},
+        "Verde": {"color": "#15803D"},
+    }
     dashcards = session.updates[0][1]['dashcards']
     assert len(dashcards) == 10
     assert all(len(card['parameter_mappings']) == 2 for card in dashcards)
