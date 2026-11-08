@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Link, useSearchParams, useLocation } from "react-router-dom";
 import Passport from "./Passport";
+import AppShell from "./AppShell";
 import DocumentOriginal from "./DocumentOriginal";
 import InstrumentFinder from "./InstrumentFinder";
 import DocumentFinder from "./DocumentFinder";
@@ -642,26 +643,17 @@ function App() {
   }
 
   return (
-    <main
-      onClickCapture={guardNavigation}
-      style={{
-        fontFamily: "Arial, sans-serif",
-        maxWidth: "1280px",
-        margin: "0 auto",
-        padding: "40px 24px",
-      }}
-    >
-      <h1>PassportTwin</h1>
+    <AppShell active={activeTab} onClickCapture={guardNavigation}>
+    <main className="passport workspace-page" data-view={activeTab}>
+      <header className="workspace-heading">
+      <p>Espacio de trabajo</p>
+      <h1>{{ home: "Inventario", review: "Revisión documental", audit: "Auditoría y trazabilidad" }[activeTab]}</h1>
       {/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.get("passport") || "") &&
-        <Link to={`/passport/${params.get("passport")}`}>Volver al pasaporte</Link>}
-      <nav aria-label="Vistas de la aplicación" className="workspace-nav">
-        <Link to="/" aria-current={activeTab === "home" ? "page" : undefined}>Inicio</Link>
-        <Link to="/?tab=review" aria-current={activeTab === "review" ? "page" : undefined}>Revisión documental</Link>
-        <Link to="/?tab=audit" aria-current={activeTab === "audit" ? "page" : undefined}>Auditoría y trazabilidad</Link>
-      </nav>
+        <Link className="workspace-back" to={`/passport/${params.get("passport")}`}>Volver al pasaporte</Link>}
+      </header>
 
       {activeTab === "home" && <>
-        <section aria-labelledby="tasks-heading">
+        <section className="workspace-panel" aria-labelledby="tasks-heading">
           <h2 id="tasks-heading">¿Qué necesitas hacer?</h2>
           <div className="workspace-tasks">
             <a href="#inventory"><strong>Consultar un pasaporte</strong><span>Busca un instrumento por serie o ubicación y consulta su historial.</span></a>
@@ -674,8 +666,6 @@ function App() {
 
       {activeTab === "review" && (
         <section>
-          <h2>Revisión documental</h2>
-
           <p>
             Sube y procesa un certificado nuevo o busca uno existente. Revisa los campos, guarda las correcciones, valida e incorpora la calibración al historial.
           </p>
@@ -823,18 +813,14 @@ function App() {
               >
                 {fields.map((field) => (
                   field.field_name === "serial_candidates" ? (
-                    <article key={field.field_id} style={{ padding: "16px", border: "1px solid #ddd", borderRadius: "8px" }}>
+                    <article key={field.field_id} className="workspace-panel">
                       <h4>Series detectadas en el documento</h4>
                       <ul>{candidateSerials(field.raw_value).map((serial) => <li key={serial}>{serial}</li>)}</ul>
                       <p>Comprueba el certificado, elige una serie en el campo de vinculación, guarda la corrección y vuelve a validar. Esta evidencia es de solo lectura.</p>
                     </article>
                   ) : <article
                     key={field.field_id}
-                    style={{
-                      padding: "16px",
-                      border: "1px solid #ddd",
-                      borderRadius: "8px",
-                    }}
+                    className="workspace-panel"
                   >
                     <div
                       style={{
@@ -932,7 +918,6 @@ function App() {
 
       {activeTab === "audit" && (
         <section>
-          <h2>Auditoría y trazabilidad</h2>
 
           <p>
             Consulta el historial de eventos y correcciones, ordenado del más reciente al más antiguo.
@@ -1031,6 +1016,7 @@ function App() {
         </section>
       )}
     </main>
+    </AppShell>
   );
 }
 

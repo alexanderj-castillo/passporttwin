@@ -21,7 +21,7 @@ export default function DocumentFinder({ apiBaseUrl, mode, refresh }) {
       .catch(error => { if (!controller.signal.aborted) setState({ items: [], error: "No se han podido cargar los documentos. Vuelve a intentarlo." }); });
     return () => controller.abort();
   }, [apiBaseUrl, query, reviewOnly, offset, retry, refresh]);
-  return <section aria-labelledby={`${prefix}-heading`}>
+  return <section className="workspace-panel" aria-labelledby={`${prefix}-heading`}>
     <h3 id={`${prefix}-heading`}>Buscar un documento</h3>
     <label htmlFor={`${prefix}-search`}>Nombre del documento, serie o ubicación</label>{" "}
     <input id={`${prefix}-search`} maxLength={200} value={query} onChange={event => { setQuery(event.target.value); setOffset(0); }} />

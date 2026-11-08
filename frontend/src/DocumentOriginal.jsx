@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import AppShell from "./AppShell";
 import "./passport.css";
 
 export default function DocumentOriginal({ apiBaseUrl }) {
@@ -36,15 +37,15 @@ export default function DocumentOriginal({ apiBaseUrl }) {
     return () => { controller.abort(); if (objectUrl) URL.revokeObjectURL(objectUrl); };
   }, [apiBaseUrl, documentId]);
 
-  return <main className="passport">
-    <header><h1>Documento original</h1>
+  return <AppShell active="review"><main className="passport workspace-page" data-view="review">
+    <header className="workspace-heading"><p>Evidencia documental</p><h1>Documento original</h1>
       <nav className="passport-links" aria-label="Navegación del documento">
         {passport && <Link to={`/passport/${encodeURIComponent(passport)}`}>Volver al pasaporte</Link>}
         <Link to={`/?tab=review&documentId=${encodeURIComponent(documentId)}${passport ? `&passport=${encodeURIComponent(passport)}` : ""}`}>Revisar campos</Link>
         <Link to="/">Inicio y búsqueda</Link>
       </nav>
     </header>
-    {state.loading ? <p role="status">Cargando original…</p> : state.error ? <p role="alert">{state.error}</p> : <section>
+    {state.loading ? <p role="status">Cargando original…</p> : state.error ? <p role="alert">{state.error}</p> : <section className="workspace-panel">
       <h2>{state.filename}</h2>
       <p><a href={state.url} download={state.filename}>Descargar original</a></p>
       {state.sha256 && <p className="original-hash">SHA-256 verificado: <code>{state.sha256}</code></p>}
@@ -53,5 +54,5 @@ export default function DocumentOriginal({ apiBaseUrl }) {
         <iframe title={`Original: ${state.filename}`} src={state.url} className="original-viewer" />
       </> : <p>Este formato está disponible para descargar.</p>}
     </section>}
-  </main>;
+  </main></AppShell>;
 }
