@@ -15,10 +15,10 @@ export default function InstrumentFinder({ apiBaseUrl, mode = "passport" }) {
     return () => controller.abort();
   }, [apiBaseUrl]);
   const matches = instruments.filter(i => `${i.serial_number} ${i.location || ""}`.toLowerCase().includes(query.toLowerCase()));
-  return <section aria-labelledby="finder"><h2 id="finder">{mode === "audit" ? "Buscar un instrumento para auditoría" : "Buscar un pasaporte"}</h2>
+  return <section className="workspace-panel" aria-labelledby="finder"><h2 id="finder">{mode === "audit" ? "Buscar un instrumento para auditoría" : "Buscar un pasaporte"}</h2>
     <label htmlFor="passport-search">Número de serie o ubicación</label>{" "}
     <input id="passport-search" value={query} onChange={event => setQuery(event.target.value)} />
-    {loading ? <p role="status">Cargando instrumentos…</p> : error ? <p role="alert">No se ha podido cargar el inventario.</p> : <ul>{matches.slice(0, 20).map(i =>
+    {loading ? <p role="status">Cargando instrumentos…</p> : error ? <p role="alert">No se ha podido cargar el inventario.</p> : <ul className="document-results">{matches.slice(0, 20).map(i =>
       <li key={i.public_id}><Link to={mode === "audit" ? `/?tab=audit&entity=instrument&id=${i.id}&passport=${i.public_id}` : `/passport/${i.public_id}`}>{i.serial_number}</Link> · {i.location || "Sin ubicación"}</li>)}</ul>}
     {!loading && !error && !matches.length && <p>No hay instrumentos que coincidan.</p>}
     {matches.length > 20 && <p>Se muestran 20 resultados. Afina la búsqueda para encontrar el instrumento.</p>}

@@ -1,6 +1,30 @@
-.workspace-nav { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0; border-bottom: 1px solid #dce6f0; padding-bottom: 16px; }
-.workspace-nav a { padding: 10px 16px; border-radius: 8px; color: #1755a5; text-decoration: none; }
-.workspace-nav a[aria-current="page"] { color: white; background: #1d4ed8; }
+.passport-sidebar a[aria-current="page"] { background: #284568; font-weight: 700; }
+.workspace-page { box-sizing: border-box; width: 100%; min-width: 0; min-height: 70vh; --workspace-accent: #406da0; --workspace-tint: #edf3fb; }
+.workspace-page[data-view="review"] { --workspace-accent: #176b65; --workspace-tint: #e9f5f2; }
+.workspace-page[data-view="audit"] { --workspace-accent: #635496; --workspace-tint: #f2eef9; }
+.workspace-page .workspace-heading { padding: 16px 18px; border: 1px solid #d6e0ee; border-radius: 12px; background: var(--workspace-tint); }
+.workspace-heading > p { margin: 0; color: #526579; font-size: .85rem; }
+.workspace-heading h1 { font-size: clamp(1.5rem, 4vw, 2rem); line-height: 1.2; }
+.workspace-heading h1::after { content: ""; display: block; width: 2.4rem; height: 3px; margin-top: 10px; border-radius: 3px; background: var(--workspace-accent); }
+.workspace-back { display: inline-block; margin-top: 5px; }
+.workspace-page .workspace-panel { margin: 12px 0; padding: 14px 16px; border: 1px solid #d6e0ee; border-inline-start: 3px solid var(--workspace-accent); border-radius: 10px; background: #fff; overflow-wrap: anywhere; }
+.workspace-panel > :is(h2, h3, h4):first-child { margin-top: 0; }
+.workspace-page :is(button, input, select, summary) { font: inherit; }
+.workspace-page :is(input:not([type=checkbox]), select) { box-sizing: border-box; max-width: 100%; padding: 7px 9px; border: 1px solid #9db1c6; border-radius: 6px; color: #18334c; background: #fff; }
+.workspace-page button { min-height: 36px; padding: 6px 10px; border: 1px solid #9db1c6; border-radius: 6px; color: #18334c; background: #fff; }
+.workspace-page button[type=submit], .workspace-page .document-review-controls button { color: #fff; border-color: var(--workspace-accent); background: var(--workspace-accent); font-weight: 650; }
+.workspace-page button:disabled { color: #526579; border-color: #d6e0ee; background: #eef2f7; }
+.workspace-page :is(a, button, input, select, summary):focus-visible, .passport-sidebar a:focus-visible { outline: 2px solid #1755a5; outline-offset: 3px; }
+.passport-sidebar a:focus-visible { outline-color: #b8d9ff; }
+.workspace-upload { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.workspace-page .document-review-actions { border-inline-start: 3px solid var(--workspace-accent); background: var(--workspace-tint); }
+.workspace-page .document-results li:nth-child(even) { background: #f6f8fb; }
+.workspace-page .document-results li { padding-inline: 8px; }
+@media (max-width: 630px) {
+  .workspace-page { padding: 14px; }
+  .workspace-page .workspace-panel { padding: 12px; }
+  .workspace-page button { min-height: 44px; }
+}
 .workspace-tasks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 16px; }
 .workspace-tasks a { display: flex; flex-direction: column; gap: 10px; padding: 20px; border: 1px solid #dce6f0; border-radius: 10px; color: #18334c; text-decoration: none; background: #f4f8fc; }
 .workspace-tasks a:hover, .workspace-tasks a:focus-visible { border-color: #1755a5; }

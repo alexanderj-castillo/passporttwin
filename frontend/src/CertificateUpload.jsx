@@ -44,9 +44,9 @@ export default function CertificateUpload({ apiBaseUrl, onUploaded }) {
   }
 
   return (
-    <section aria-labelledby="certificate-upload-heading">
+    <section className="workspace-panel" aria-labelledby="certificate-upload-heading">
       <h3 id="certificate-upload-heading">Subir certificado PDF</h3>
-      <form onSubmit={upload}>
+      <form className="workspace-upload" onSubmit={upload}>
         <label htmlFor="certificate-file">Archivo PDF</label>{" "}
         <input
           id="certificate-file"
