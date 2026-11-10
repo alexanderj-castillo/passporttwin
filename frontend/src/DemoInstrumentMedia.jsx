@@ -3,6 +3,32 @@ import sano from "./assets/demo/sano.webp";
 import vencido from "./assets/demo/vencido.webp";
 import revision from "./assets/demo/revision.webp";
 
+import temperature from "./assets/demo/temperature.webp";
+import ph from "./assets/demo/ph.webp";
+
+const plantZones = [
+  "Sala de bombas", "Filtración", "Tratamiento",
+  "Dosificación", "Laboratorio de instrumentación", "Taller",
+];
+const plantAssets = {
+  "PT-101": ["26A041785", sano, 0, 43],
+  "PT-102": ["26A041786", sano, 0, 99],
+  "PT-103": ["26A041787", sano, 0, 155],
+  "PT-104": ["26A041788", sano, 1, 43],
+  "PT-105": ["26A041789", vencido, 1, 99],
+  "PT-106": ["26A041790", vencido, 1, 155],
+  "TT-201": ["26T085241", temperature, 2, 35],
+  "TT-202": ["26T085242", temperature, 2, 77],
+  "TT-203": ["26T085243", temperature, 2, 119],
+  "TT-204": ["26T085244", temperature, 2, 161],
+  "PH-301": ["26P073610", ph, 3, 43],
+  "PH-302": ["26P073611", ph, 3, 99],
+  "PH-303": ["26P073612", ph, 3, 155],
+  "PH-304": ["26P073613", ph, 4, 65],
+  "PT-107": ["26A041791", vencido, 4, 131],
+  "PT-108": ["26A041792", sano, 5, 99],
+};
+
 const resources = new Map([
   ["PTWIN-DEMO-SANO", { photo: sano, zone: "Área de trabajo", x: 361, y: 157 }],
   ["PTWIN-DEMO-VENCIDO", { photo: vencido, zone: "Banco de calibración", x: 174, y: 157 }],
@@ -10,11 +36,62 @@ const resources = new Map([
 ]);
 
 export function demoInstrumentMedia(instrument) {
+  const asset = plantAssets[instrument.plant_tag];
+  if (asset?.[0] === instrument.serial_number) {
+    const [, photo, zoneIndex, offset] = asset;
+    const zone = plantZones[zoneIndex];
+    if (instrument.location?.startsWith(`Planta A · ${zone} · `)) {
+      return { photo, zone, zoneIndex, offset, tag: instrument.plant_tag, location: instrument.location };
+    }
+  }
   if (instrument.manufacturer !== "PassportTwin Demo" || instrument.location !== "Laboratorio Demo") return null;
   return resources.get(instrument.serial_number) ?? null;
 }
 
+function FleetLocationPlan({ media }) {
+  const x = 60 + (media.zoneIndex % 3) * 200 + media.offset;
+  const y = media.zoneIndex < 3 ? 151 : 293;
+  return <figure className="passport-demo-plan">
+    <svg viewBox="0 0 720 440" role="img" aria-label={`Plano de ${media.location}. Punto ${media.tag}.`}>
+      <rect x="1" y="1" width="718" height="438" fill="#fbfdff" stroke="#9db1c6" />
+      <text x="24" y="32" fill="#18334c" fontSize="20" fontWeight="700">PLANTA A · TRATAMIENTO DE AGUA</text>
+      <text x="696" y="32" fill="#526579" fontSize="13" textAnchor="end">A-01</text>
+      <g fill="none" stroke="#71879b">
+        <path d="M60 73V51m600 22V51M60 59h600m-605 5 10-10m590 10 10-10" />
+        <path d="M52 82H30m22 270H30M38 82v270m-5-265 10-10m-10 280 10-10" />
+      </g>
+      <g fill="#526579" fontSize="13" textAnchor="middle">
+        <text x="360" y="55">30,00 m</text>
+        <text x="25" y="217" transform="rotate(-90 25 217)">13,50 m</text>
+      </g>
+      <rect x="60" y="82" width="600" height="270" fill="#f2f6fa" stroke="#18334c" strokeWidth="4" />
+      {plantZones.map((zone, index) => {
+        const left = 60 + index % 3 * 200;
+        const top = index < 3 ? 82 : 224;
+        return <g key={zone} transform={`translate(${left} ${top})`}>
+          <rect x="2" y="2" width="196" height="124" fill={index === media.zoneIndex ? "#e5f3f2" : "white"} />
+          <path d="M0 0v128h78m42 0h80V0" fill="none" stroke="#18334c" strokeWidth="3" />
+          <path d="M78 128V86a42 42 0 0 1 42 42" fill="none" stroke="#71879b" />
+          <rect x="20" y="53" width="160" height="32" rx="3" fill="none" stroke="#9db1c6" />
+          <text x="100" y="31" fill="#18334c" fontSize="13" fontWeight="650" textAnchor="middle">{zone}</text>
+        </g>;
+      })}
+      <g transform={`translate(${x} ${y})`}>
+        <circle r="10" fill="#125e60" stroke="#fff" strokeWidth="2" />
+        <path d="M-4 0h8m-4-4v8" stroke="#fff" strokeWidth="1.5" />
+        <text y="30" fill="#125e60" fontSize="13" fontWeight="700" textAnchor="middle">{media.tag}</text>
+      </g>
+      <path d="M24 380h672" stroke="#9db1c6" />
+      <circle cx="31" cy="406" r="6" fill="#125e60" />
+      <text x="45" y="411" fill="#18334c" fontSize="14">Instrumento seleccionado</text>
+      <text x="696" y="411" fill="#526579" fontSize="13" textAnchor="end">PLANO SINTÉTICO · COTAS DE REFERENCIA</text>
+    </svg>
+    <figcaption>{media.location} · <strong>{media.tag}</strong></figcaption>
+  </figure>;
+}
+
 export function DemoLocationPlan({ media }) {
+  if (media.tag) return <FleetLocationPlan media={media} />;
   return <figure className="passport-demo-plan">
     <svg viewBox="0 0 720 410" role="img" aria-label={`Plano ficticio de Laboratorio Demo. Instrumento situado en ${media.zone}.`}>
       <rect x="1" y="1" width="718" height="408" fill="#fbfdff" stroke="#9db1c6" />

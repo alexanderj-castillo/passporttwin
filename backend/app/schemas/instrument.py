@@ -22,6 +22,8 @@ class InstrumentTypeResponse(InstrumentTypeBase):
 class InstrumentUnitCreate(BaseModel):
     instrument_type_id: int
     serial_number: str
+    technical_name: Optional[str] = None
+    plant_tag: Optional[str] = None
     manufacturer: str
     model: str
     location: Optional[str] = "Plant-A/Area-1"
@@ -32,6 +34,8 @@ class InstrumentUnitResponse(BaseModel):
     id: int
     public_id: UUID
     serial_number: str
+    technical_name: Optional[str] = None
+    plant_tag: Optional[str] = None
     manufacturer: str
     model: str
     location: Optional[str]

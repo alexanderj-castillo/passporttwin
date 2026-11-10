@@ -13,8 +13,10 @@ function calendarDate(value) {
   return Number.isNaN(date.getTime()) ? "Sin fecha disponible" : calendarDateFormat.format(date);
 }
 const number = (value) => value == null ? "No estimable" : Number(value).toLocaleString("es-ES", { maximumFractionDigits: 3 });
-const probability = (value) => value == null ? "No estimable" :
-  value > 0 && value * 100 < 0.001 ? "< 0,001 %" : `${number(value * 100)} %`;
+const percentFormat = new Intl.NumberFormat("es-ES", {
+  style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1,
+});
+const probability = (value) => value == null ? "No estimable" : percentFormat.format(value);
 const sectionIcons = {
   summary: "M3 10 12 3l9 7M5 9v11h5v-6h4v6h5V9",
   identity: "M12 11v5m0-8h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z",
@@ -119,11 +121,12 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
         <header className="passport-identity-card">
           <div className="passport-identity-band">
             {demoMedia ? <figure className="passport-photo-placeholder passport-demo-photo">
-              <img src={demoMedia.photo} alt="Imagen sintética del transmisor de presión de demostración" />
+              <img src={demoMedia.photo} alt={`Imagen de referencia · ${instrument.technical_name || instrument.model}`} />
               <figcaption>Imagen sintética</figcaption>
             </figure> : <span className="passport-photo-placeholder" aria-label="Foto no disponible">Sin foto</span>}
             <div><p>Pasaporte del instrumento</p>
-              <h1>{instrument.model || "Instrumento"}</h1>
+              <h1>{instrument.technical_name || instrument.model || "Instrumento"}</h1>
+              {instrument.plant_tag && <p>Etiqueta de planta · <strong>{instrument.plant_tag}</strong></p>}
               <p>Número de serie · <strong>{instrument.serial_number}</strong></p>
             </div>
           </div>
@@ -185,6 +188,8 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
         {[
           ["Identificación", [
             ["Fabricante", instrument.manufacturer], ["Modelo", instrument.model],
+            ...(instrument.technical_name ? [["Nombre técnico", instrument.technical_name]] : []),
+            ...(instrument.plant_tag ? [["Etiqueta de planta", instrument.plant_tag]] : []),
             ["Número de serie", instrument.serial_number], ["Identificador del pasaporte", instrument.public_id],
           ]],
           ["Medida y operación", [
