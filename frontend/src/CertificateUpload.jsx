@@ -64,7 +64,7 @@ export default function CertificateUpload({ apiBaseUrl, onUploaded }) {
       {error && <p role="alert">{error}</p>}
       {uploaded && (
         <p role="status">
-          <Link to={"/?tab=review&documentId=" + uploaded.id}>{uploaded.name}</Link>
+          <Link to={`/?tab=review&documentId=${uploaded.id}#selected-document`}>Abrir {uploaded.name}</Link>
           {" · Recibido, pendiente de procesar."}
         </p>
       )}
