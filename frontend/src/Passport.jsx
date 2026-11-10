@@ -84,6 +84,8 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
   if (state.loading) return <main className="passport"><p role="status">Cargando pasaporte…</p></main>;
   if (state.error) return <main className="passport"><h1>Pasaporte digital</h1><p role="alert">{state.error}</p><Link to="/">Volver a PassportTwin</Link></main>;
   const { instrument, calibrations, score, risk, context, maintenance } = state;
+  const calibrationHistory = calibrations?.slice().sort((a, b) =>
+    b.calibration_date.localeCompare(a.calibration_date) || b.id - a.id);
   const demoMedia = demoInstrumentMedia(instrument);
   if (planOnly) return <AppShell>
     <main className="passport passport-redesign passport-plan-page">
@@ -269,7 +271,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
           <h3 id="calibration-history">Historial completo</h3>
           <div className="passport-table passport-calibration-history" role="region" aria-labelledby="calibration-history" tabIndex={0}>
             <table><thead><tr><th scope="col">Fecha</th><th scope="col">Próximo vencimiento</th><th scope="col">Error ({unit})</th><th scope="col">Tolerancia ({unit})</th><th scope="col">Resultado</th></tr></thead>
-              <tbody>{calibrations.map((item) => <tr key={item.id}><td>{calendarDate(item.calibration_date)}</td><td>{calendarDate(item.next_due_date)}</td><td>{number(item.error_value)}</td><td>{number(item.tolerance)}</td><td><span className="passport-detail-status" data-status={String(item.result).toLowerCase()}>{statusLabel(item.result)}</span></td></tr>)}</tbody>
+              <tbody>{calibrationHistory.map((item) => <tr key={item.id}><td>{calendarDate(item.calibration_date)}</td><td>{calendarDate(item.next_due_date)}</td><td>{number(item.error_value)}</td><td>{number(item.tolerance)}</td><td><span className="passport-detail-status" data-status={String(item.result).toLowerCase()}>{statusLabel(item.result)}</span></td></tr>)}</tbody>
             </table>
           </div>
         </>}

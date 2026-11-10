@@ -33,6 +33,9 @@
 .document-results { padding: 0; list-style: none; }
 .document-results li { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px 0; border-bottom: 1px solid #dce6f0; overflow-wrap: anywhere; }
 .document-results span { color: #526579; }
+.instrument-results li { display: grid; gap: 3px; justify-items: start; }
+.instrument-results a { font-weight: 650; }
+.instrument-results span { font-size: 0.9em; }
 .workspace-pages { display: flex; flex-wrap: wrap; gap: 12px; }
 #document-review-search, #document-audit-search { box-sizing: border-box; max-width: 100%; padding: 8px; }
 

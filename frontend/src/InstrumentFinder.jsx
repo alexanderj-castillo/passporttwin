@@ -20,11 +20,14 @@ export default function InstrumentFinder({ apiBaseUrl, mode = "passport" }) {
   return <section className="workspace-panel" aria-labelledby="finder"><h2 id="finder">{mode === "audit" ? "Buscar un instrumento para auditoría" : "Buscar un pasaporte"}</h2>
     <label htmlFor="passport-search">Nombre, etiqueta, número de serie o ubicación</label>{" "}
     <input id="passport-search" value={query} onChange={event => setQuery(event.target.value)} />
-    {loading ? <p role="status">Cargando instrumentos…</p> : error ? <p role="alert">No se ha podido cargar el inventario.</p> : <ul className="document-results">{matches.slice(0, 20).map(i =>
+    {loading ? <p role="status">Cargando instrumentos…</p> : error ? <p role="alert">No se ha podido cargar el inventario.</p> : <ul className="document-results instrument-results">{matches.slice(0, 20).map(i =>
       <li key={i.public_id}>
         <Link to={mode === "audit" ? `/?tab=audit&entity=instrument&id=${i.id}&passport=${i.public_id}` : `/passport/${i.public_id}`}>
-          {[i.technical_name, i.plant_tag, i.serial_number].filter(Boolean).join(" · ")}
+          {i.technical_name || i.serial_number}
         </Link>
+        {(i.plant_tag || i.technical_name) && <span>
+          {[i.plant_tag, i.technical_name && `Serie ${i.serial_number}`].filter(Boolean).join(" · ")}
+        </span>}
         <span>{i.location || "Sin ubicación"}</span>
       </li>)}</ul>}
     {!loading && !error && !matches.length && <p>No hay instrumentos que coincidan.</p>}
