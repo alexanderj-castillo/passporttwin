@@ -39,6 +39,12 @@
 .passport-id-summary dt svg { width: 16px; height: 16px; flex: none; fill: none; stroke: #1755a5; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .passport-plan-link { display: inline-block; font-size: .82rem; padding: 3px 0; }
 .passport-location-plan { scroll-margin-top: 16px; }
+.passport-demo-photo { position: relative; display: block; margin: 0; overflow: hidden; }
+.passport-demo-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.passport-demo-photo figcaption { position: absolute; inset: auto 0 0; padding: 3px; text-align: center; background: #18334c; color: #fff; font-size: .65rem; }
+.passport-demo-plan { margin: 10px 0 0; }
+.passport-demo-plan svg { display: block; width: 100%; height: auto; }
+.passport-demo-plan figcaption { margin-top: 5px; color: #526579; font-size: .82rem; }
 .passport-technical-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(215px, 100%), 1fr)); gap: 12px; }
 .passport-technical-grid h3 { margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; font-size: 1rem; }
 .passport-technical-grid dl { display: grid; gap: 8px; margin: 0; }

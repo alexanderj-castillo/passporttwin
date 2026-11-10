@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AppShell from "./AppShell";
+import { demoInstrumentMedia, DemoLocationPlan } from "./DemoInstrumentMedia";
 import "./passport.css";
 import { statusLabel, dateTimeLabel, healthActions, riskAction } from "./presentation";
 
@@ -70,6 +71,7 @@ export default function Passport({ apiBaseUrl }) {
   if (state.loading) return <main className="passport"><p role="status">Cargando pasaporte…</p></main>;
   if (state.error) return <main className="passport"><h1>Pasaporte digital</h1><p role="alert">{state.error}</p><Link to="/">Volver a PassportTwin</Link></main>;
   const { instrument, calibrations, score, risk, context, maintenance } = state;
+  const demoMedia = demoInstrumentMedia(instrument);
   const actions = healthActions(score?.health_score_details, risk);
   const unit = context?.unit || "unidad no definida";
   const auditUrl = `/?tab=audit&entity=instrument&id=${instrument.id}&passport=${instrument.public_id}`;
@@ -95,7 +97,10 @@ export default function Passport({ apiBaseUrl }) {
       <div className="passport-overview">
         <header className="passport-identity-card">
           <div className="passport-identity-band">
-            <span className="passport-photo-placeholder" aria-label="Foto no disponible">Sin foto</span>
+            {demoMedia ? <figure className="passport-photo-placeholder passport-demo-photo">
+              <img src={demoMedia.photo} alt="Imagen sintética del transmisor de presión de demostración" />
+              <figcaption>Imagen sintética</figcaption>
+            </figure> : <span className="passport-photo-placeholder" aria-label="Foto no disponible">Sin foto</span>}
             <div><p>Pasaporte del instrumento</p>
               <h1>{instrument.model || "Instrumento"}</h1>
               <p>Número de serie · <strong>{instrument.serial_number}</strong></p>
@@ -171,7 +176,8 @@ export default function Passport({ apiBaseUrl }) {
         <article id="location-plan" className="passport-summary-card passport-location-plan" tabIndex={-1}>
           <h3>Ubicación y plano</h3>
           <dl><div><dt>Ubicación registrada</dt><dd>{text(instrument.location)}</dd></div></dl>
-          <p className="passport-data-caption">No hay un plano asociado a este instrumento.</p>
+          {demoMedia ? <DemoLocationPlan media={demoMedia} /> :
+            <p className="passport-data-caption">No hay un plano asociado a este instrumento.</p>}
         </article>
       </div>
     </section>
