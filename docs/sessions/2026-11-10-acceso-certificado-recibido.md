@@ -4,3 +4,4 @@
 - La confirmación de subida ofrece una acción Abrir con el nombre del archivo. Al activarla, la ruta carga el documento y coloca el foco en su encabezado. El enlace pasa por la protección existente de borradores.
 - Build de Vite y git diff --check correctos. Chromium verificó a 1280 y 390 px una respuesta de subida simulada y la apertura por teclado del documento de ensayo cargado desde la API.
 - Pendiente publicar y revisar. Siguiente comprobación de usabilidad: apertura del PDF original y regreso al documento en revisión.
+- En la misma rama se comprobó Abrir original y volver con Revisar campos al mismo documento, conservando el contexto del pasaporte y enfocando el encabezado a 1280 y 390 px.
