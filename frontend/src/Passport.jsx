@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import AppShell from "./AppShell";
 import { demoInstrumentMedia, DemoLocationPlan } from "./DemoInstrumentMedia";
 import "./passport.css";
@@ -32,8 +32,9 @@ const reasons = {
   TOLERANCE_CHANGED: "la tolerancia ha cambiado y requiere revisión",
 };
 
-export default function Passport({ apiBaseUrl }) {
+export default function Passport({ apiBaseUrl, planOnly = false }) {
   const { publicId } = useParams();
+  const { hash } = useLocation();
   const [state, setState] = useState({ loading: true });
 
   useEffect(() => {
@@ -48,6 +49,10 @@ export default function Passport({ apiBaseUrl }) {
       setState({ loading: true });
       try {
         const instrument = await get(`by-public-id/${encodeURIComponent(publicId)}`);
+        if (planOnly) {
+          if (!controller.signal.aborted) setState({ instrument });
+          return;
+        }
         const responses = await Promise.allSettled([
           get(`${instrument.id}/calibrations`), get(`${instrument.id}/health-score`),
           get(`${instrument.id}/tolerance-risk`),
@@ -66,12 +71,28 @@ export default function Passport({ apiBaseUrl }) {
     }
     load();
     return () => controller.abort();
-  }, [publicId, apiBaseUrl]);
+  }, [publicId, apiBaseUrl, planOnly]);
+
+  useEffect(() => {
+    if (!planOnly && hash === "#location-plan" && state.instrument) {
+      document.getElementById("location-plan")?.focus();
+    }
+  }, [hash, planOnly, state.instrument]);
 
   if (state.loading) return <main className="passport"><p role="status">Cargando pasaporte…</p></main>;
   if (state.error) return <main className="passport"><h1>Pasaporte digital</h1><p role="alert">{state.error}</p><Link to="/">Volver a PassportTwin</Link></main>;
   const { instrument, calibrations, score, risk, context, maintenance } = state;
   const demoMedia = demoInstrumentMedia(instrument);
+  if (planOnly) return <AppShell>
+    <main className="passport passport-redesign passport-plan-page">
+      <header>
+        <Link to={`/passport/${encodeURIComponent(publicId)}#location-plan`}>Volver al pasaporte</Link>
+        <h1>Plano de ubicación</h1>
+        <p>{text(instrument.location)} · {instrument.serial_number}</p>
+      </header>
+      {demoMedia ? <DemoLocationPlan media={demoMedia} /> : <p>No hay un plano asociado a este instrumento.</p>}
+    </main>
+  </AppShell>;
   const actions = healthActions(score?.health_score_details, risk);
   const unit = context?.unit || "unidad no definida";
   const auditUrl = `/?tab=audit&entity=instrument&id=${instrument.id}&passport=${instrument.public_id}`;
@@ -108,7 +129,9 @@ export default function Passport({ apiBaseUrl }) {
           </div>
           <dl className="passport-id-summary">
             <div><dt><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V10l6-4v5l6-5v5l6-4v14H3Zm5-5h1m3 0h1m3 0h1" /></svg>Fabricante</dt><dd>{text(instrument.manufacturer)}</dd></div>
-            <div><dt><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 10c0 5-7 10-7 10s-7-5-7-10a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2" /></svg>Ubicación</dt><dd>{text(instrument.location)}<br /><a className="passport-plan-link" href="#location-plan">Ver plano</a></dd></div>
+            <div><dt><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 10c0 5-7 10-7 10s-7-5-7-10a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2" /></svg>Ubicación</dt><dd>{text(instrument.location)}
+              {demoMedia && <><br /><Link className="passport-plan-link" to={`/passport/${encodeURIComponent(publicId)}/plano`}>Abrir plano</Link></>}
+            </dd></div>
             <div className="passport-operating"><dt>Estado operativo</dt><dd><span data-operational={String(instrument.lifecycle_state).toLowerCase() === "operational"}>{statusLabel(instrument.lifecycle_state)}</span></dd></div>
           </dl>
           <nav className="passport-instrument-nav" aria-label="Secciones del instrumento">
