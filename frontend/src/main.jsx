@@ -1038,7 +1038,8 @@ ReactDOM.createRoot(
     <BrowserRouter>
       <Routes>
         <Route path="/documents/:documentId/original" element={<DocumentOriginal apiBaseUrl={API_BASE_URL} />} />
-        <Route path="/passport/:publicId" element={<Passport apiBaseUrl={API_BASE_URL} />} />
+        <Route path="/passport/:publicId" element={<Passport key="passport" apiBaseUrl={API_BASE_URL} />} />
+        <Route path="/passport/:publicId/plano" element={<Passport key="location-plan" apiBaseUrl={API_BASE_URL} planOnly />} />
         <Route path="*" element={<Workspace />} />
       </Routes>
     </BrowserRouter>

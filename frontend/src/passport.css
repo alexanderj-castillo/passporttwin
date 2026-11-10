@@ -44,7 +44,11 @@
 .passport-demo-photo figcaption { position: absolute; inset: auto 0 0; padding: 3px; text-align: center; background: #18334c; color: #fff; font-size: .65rem; }
 .passport-demo-plan { margin: 10px 0 0; }
 .passport-demo-plan svg { display: block; width: 100%; height: auto; }
+.passport-technical-grid:has(.passport-demo-plan) { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+.passport-location-plan:has(.passport-demo-plan) { grid-column: 1 / -1; }
+.passport-demo-plan { max-width: 760px; }
 .passport-demo-plan figcaption { margin-top: 5px; color: #526579; font-size: .82rem; }
+.passport-plan-page .passport-demo-plan { max-width: none; }
 .passport-technical-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(215px, 100%), 1fr)); gap: 12px; }
 .passport-technical-grid h3 { margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; font-size: 1rem; }
 .passport-technical-grid dl { display: grid; gap: 8px; margin: 0; }
