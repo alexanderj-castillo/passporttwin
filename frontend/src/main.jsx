@@ -653,15 +653,14 @@ function App() {
       </header>
 
       {activeTab === "home" && <>
+        <div id="inventory"><InstrumentFinder apiBaseUrl={API_BASE_URL} /></div>
         <section className="workspace-panel" aria-labelledby="tasks-heading">
-          <h2 id="tasks-heading">¿Qué necesitas hacer?</h2>
+          <h2 id="tasks-heading">Otras tareas</h2>
           <div className="workspace-tasks">
-            <a href="#inventory"><strong>Consultar un pasaporte</strong><span>Busca un instrumento por serie o ubicación y consulta su historial.</span></a>
             <Link to="/?tab=review"><strong>Revisar un documento</strong><span>Encuentra el certificado por nombre o instrumento, revisa sus campos e incorpóralo al historial.</span></Link>
             <Link to="/?tab=audit"><strong>Consultar trazabilidad</strong><span>Selecciona un documento o instrumento para ver sus eventos y correcciones.</span></Link>
           </div>
         </section>
-        <div id="inventory"><InstrumentFinder apiBaseUrl={API_BASE_URL} /></div>
       </>}
 
       {activeTab === "review" && (
