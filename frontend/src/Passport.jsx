@@ -123,7 +123,8 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
               <figcaption>Imagen sintética</figcaption>
             </figure> : <span className="passport-photo-placeholder" aria-label="Foto no disponible">Sin foto</span>}
             <div><p>Pasaporte del instrumento</p>
-              <h1>{instrument.model || "Instrumento"}</h1>
+              <h1>{instrument.technical_name || instrument.model || "Instrumento"}</h1>
+              {instrument.plant_tag && <p>Etiqueta de planta · <strong>{instrument.plant_tag}</strong></p>}
               <p>Número de serie · <strong>{instrument.serial_number}</strong></p>
             </div>
           </div>
@@ -185,6 +186,8 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
         {[
           ["Identificación", [
             ["Fabricante", instrument.manufacturer], ["Modelo", instrument.model],
+            ...(instrument.technical_name ? [["Nombre técnico", instrument.technical_name]] : []),
+            ...(instrument.plant_tag ? [["Etiqueta de planta", instrument.plant_tag]] : []),
             ["Número de serie", instrument.serial_number], ["Identificador del pasaporte", instrument.public_id],
           ]],
           ["Medida y operación", [

@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS instrument_unit (
     public_id          UUID DEFAULT gen_random_uuid() UNIQUE NOT NULL,
     instrument_type_id INTEGER REFERENCES instrument_type(id) ON DELETE RESTRICT,
     serial_number      TEXT UNIQUE NOT NULL,
+    technical_name     TEXT,
+    plant_tag          TEXT,
     manufacturer       TEXT NOT NULL,
     model              TEXT NOT NULL,
     location           TEXT,

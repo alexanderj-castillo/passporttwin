@@ -91,6 +91,10 @@ def seed_pilot(db, as_of):
         if instrument is not None:
             if instrument.public_id != public_id:
                 raise ValueError(f"La serie {case['serial']} ya pertenece a otro instrumento")
+            if instrument.technical_name is None:
+                instrument.technical_name = case["name"]
+            if instrument.plant_tag is None:
+                instrument.plant_tag = case["tag"]
             instruments.append((case, instrument, False))
             continue
         family = db.query(InstrumentType).filter_by(name=case["family"]).one_or_none()
@@ -102,6 +106,7 @@ def seed_pilot(db, as_of):
             raise ValueError(f"La familia {family.name} ya existe con otra magnitud o unidad")
         instrument = InstrumentUnit(
             public_id=public_id, instrument_type_id=family.id, serial_number=case["serial"],
+            technical_name=case["name"], plant_tag=case["tag"],
             manufacturer=case["manufacturer"], model=case["model"], location=case["location"],
             criticality=case["criticality"], installed_at=as_of - timedelta(days=180 if case["errors"] else 4),
         )

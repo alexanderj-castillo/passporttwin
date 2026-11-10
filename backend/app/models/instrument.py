@@ -28,6 +28,8 @@ class InstrumentUnit(Base):
     public_id = Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, index=True)
     instrument_type_id = Column(Integer, ForeignKey("instrument_type.id"), nullable=False)
     serial_number = Column(String, unique=True, nullable=False, index=True)
+    technical_name = Column(String, nullable=True)
+    plant_tag = Column(String, nullable=True)
     manufacturer = Column(String, nullable=False)
     model = Column(String, nullable=False)
     location = Column(String, nullable=True)
