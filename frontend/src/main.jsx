@@ -372,6 +372,7 @@ function AuditTrailTable({ events }) {
 
 function App() {
   const [params] = useSearchParams();
+  const { hash } = useLocation();
   const [documentRefresh, setDocumentRefresh] = useState(0);
   const initialTab = params.get("tab") === "audit" ? "audit" : (params.get("tab") === "review" || params.has("documentId")) ? "review" : "home";
   const hasDocument = /^\d+$/.test(params.get("documentId") || "");
@@ -387,6 +388,11 @@ function App() {
   const activeTab = initialTab;
   const [documentId, setDocumentId] = useState(initialDocument);
   const [loadedDocumentId, setLoadedDocumentId] = useState(null);
+  React.useEffect(() => {
+    if (hash === "#selected-document" && loadedDocumentId != null) {
+      document.getElementById("selected-document")?.focus();
+    }
+  }, [hash, loadedDocumentId]);
   const [loadedDocumentName, setLoadedDocumentName] = useState("");
   const [processingStatus, setProcessingStatus] = useState("");
   const [documentType, setDocumentType] = useState("");
@@ -727,7 +733,7 @@ function App() {
           </details>
 
           {loadedDocumentId && (
-            <section aria-label="Documento seleccionado"><h3>{loadedDocumentName || `Documento ${loadedDocumentId}`}</h3>
+            <section aria-labelledby="selected-document"><h3 id="selected-document" tabIndex={-1}>{loadedDocumentName || `Documento ${loadedDocumentId}`}</h3>
             <p><Link to={`/documents/${loadedDocumentId}/original${params.get("passport") ? `?passport=${encodeURIComponent(params.get("passport"))}` : ""}`}>Abrir original</Link></p>
             {canProcessCertificate && <button type="button" onClick={processCertificate} disabled={loading || hasUnsavedChanges}>
               {processingStatus === "FAILED_EXTRACTION" ? "Reintentar extracción" : "Procesar certificado"}
