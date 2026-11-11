@@ -96,17 +96,19 @@
 .passport-summary-card h2 { margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; font-size: 1rem; font-weight: 700; color: #18334c; }
 .passport-summary-card p { margin: 6px 0 0; }
 .passport-data-caption { color: #526579; font-size: .82rem; }
-.passport-score-summary { display: grid; justify-items: center; gap: 10px; margin: 14px 0; --meter-color: #ad7100; --band-fill: #fff1cf; --band-text: #784e00; }
-.passport-score-summary[data-band=Bajo] { --meter-color: #b72930; --band-fill: #fce7e9; --band-text: #96262d; }
-.passport-score-summary[data-band=Alto] { --meter-color: #24814c; --band-fill: #e1f3e8; --band-text: #166437; }
-.passport-meter { width: clamp(136px, 17vw, 176px); max-width: 100%; position: relative; text-align: center; }
+.passport-score-summary { display: grid; gap: 14px; margin: 14px 0; --band-fill: #fff1cf; --band-text: #784e00; }
+.passport-score-summary[data-band=Bajo] { --band-fill: #fce7e9; --band-text: #96262d; }
+.passport-score-summary[data-band=Alto] { --band-fill: #e1f3e8; --band-text: #166437; }
+.passport-score-value { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 12px; }
+.passport-score-value strong { font-size: 2rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.passport-score-value small { font-size: .85rem; }
 .passport-score-band { padding: 4px 10px; border-radius: 999px; color: var(--band-text); background: var(--band-fill); font-size: .85rem; font-weight: 650; }
-.passport-meter-arc { display: block; position: relative; aspect-ratio: 2 / 1; overflow: hidden; }
-.passport-meter-arc::before, .passport-meter-arc::after { content: ""; position: absolute; aspect-ratio: 1; border-radius: 50%; }
-.passport-meter-arc::before { inset: 0 0 auto; background: conic-gradient(from 270deg, var(--meter-color) 0 var(--score-angle), #d6e0ee var(--score-angle) 180deg, transparent 180deg); }
-.passport-meter-arc::after { inset: 12px 12px auto; background: #fff; }
-.passport-meter strong { position: absolute; inset: auto 0 0; font-size: 1.65rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.passport-meter small { font-size: .85rem; }
+.passport-score-track { position: relative; height: 10px; border-radius: 5px; background: linear-gradient(to right, #e9a1a5 0 50%, #edc471 50% 75%, #8ec9a6 75% 100%); }
+.passport-score-marker { position: absolute; top: -4px; width: 4px; height: 18px; transform: translateX(-50%); border-radius: 2px; background: #18334c; }
+.passport-score-ticks { position: relative; display: flex; justify-content: space-between; margin-top: 6px; color: #526579; font-size: .8rem; }
+.passport-score-ticks span:nth-child(2), .passport-score-ticks span:nth-child(3) { position: absolute; transform: translateX(-50%); }
+.passport-score-ticks span:nth-child(2) { left: 50%; }
+.passport-score-ticks span:nth-child(3) { left: 75%; }
 .passport-risk-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 0; text-align: center; }
 .passport-risk-summary dd { display: grid; place-items: center; width: min(100%, 68px); aspect-ratio: 1; margin: 4px auto; padding: 3px; box-sizing: border-box; border: 2px solid #125e60; border-radius: 50%; background: #e7f5f3; font-size: clamp(.66rem, 1.4vw, .85rem); line-height: 1.1; }
 .passport-overdue > strong { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #fff0e4; color: #813711; font-size: .85rem; }

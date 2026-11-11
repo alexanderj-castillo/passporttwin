@@ -155,11 +155,16 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
             <h2>Health Score</h2>
             {health == null ? <strong>{score ? "No calculado" : "No disponible"}</strong> :
               <div className="passport-score-summary" data-band={healthBand}>
-                <div className="passport-meter" style={{ "--score-angle": `${Math.max(0, Math.min(100, health)) * 1.8}deg` }}>
-                  <span aria-hidden="true" className="passport-meter-arc" />
+                <div className="passport-score-value">
                   <strong>{number(health)} <small>/ 100</small></strong>
+                  <span className="passport-score-band">{healthBand}</span>
                 </div>
-                <span className="passport-score-band">{healthBand}</span>
+                <div className="passport-score-scale" aria-hidden="true">
+                  <div className="passport-score-track">
+                    <span className="passport-score-marker" style={{ left: `clamp(2px, ${Math.max(0, Math.min(100, health))}%, 100% - 2px)` }} />
+                  </div>
+                  <div className="passport-score-ticks"><span>0</span><span>50</span><span>75</span><span>100</span></div>
+                </div>
               </div>}
             <p className="passport-data-caption">{health == null ? "Último intento de cálculo" : "Cálculo en esta consulta"} · {dateTimeLabel(score?.calculated_at)}</p>
             <p className="passport-data-caption">Datos de calibración hasta: {calendarDate(dataThrough)}</p>
