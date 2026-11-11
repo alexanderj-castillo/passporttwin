@@ -374,7 +374,11 @@ function App() {
   const [params] = useSearchParams();
   const { hash } = useLocation();
   const [documentRefresh, setDocumentRefresh] = useState(0);
-  const initialTab = params.get("tab") === "audit" ? "audit" : (params.get("tab") === "review" || params.has("documentId")) ? "review" : "home";
+  const requestedTab = params.get("tab");
+  const initialTab = requestedTab === "audit" ? "audit"
+    : requestedTab === "review" || params.has("documentId") ? "review"
+    : requestedTab === "inventory" || hash === "#inventory" ? "inventory"
+    : "home";
   const hasDocument = /^\d+$/.test(params.get("documentId") || "");
   const hasAudit = /^\d+$/.test(params.get("id") || "");
   const reviewingDocument = initialTab === "review" && hasDocument;
@@ -663,23 +667,23 @@ function App() {
     <main className="passport workspace-page" data-view={activeTab}>
       <header className="workspace-heading">
       <p>Espacio de trabajo</p>
-      <h1 id="workspace-title" tabIndex={-1}>{auditingPassport ? "Historial de eventos" : { home: "Inventario", review: "Revisión documental", audit: "Auditoría y trazabilidad" }[activeTab]}</h1>
+      <h1 id="workspace-title" tabIndex={-1}>{auditingPassport ? "Historial de eventos" : { home: "Inicio", inventory: "Inventario", review: "Revisión documental", audit: "Auditoría y trazabilidad" }[activeTab]}</h1>
+      {activeTab === "home" && <p>Pasaportes digitales y trazabilidad de instrumentos.</p>}
       {(reviewingDocument || auditingDocument) && <p>
         <Link to={`/?tab=${activeTab}${passportQuery}`}>Volver a buscar documentos</Link>
       </p>}
       {hasPassport && <Link className={auditingPassport ? "passport-primary-action" : "workspace-back"} to={`/passport/${passportId}`}>Volver al pasaporte</Link>}
       </header>
 
-      {activeTab === "home" && <>
-        <div id="inventory"><InstrumentFinder apiBaseUrl={API_BASE_URL} /></div>
-        <section className="workspace-panel" aria-labelledby="tasks-heading">
-          <h2 id="tasks-heading">Otras tareas</h2>
-          <div className="workspace-tasks">
-            <Link to="/?tab=review"><strong>Revisar un documento</strong><span>Encuentra el certificado por nombre o instrumento, revisa sus campos e incorpóralo al historial.</span></Link>
-            <Link to="/?tab=audit"><strong>Consultar trazabilidad</strong><span>Selecciona un documento o instrumento para ver sus eventos y correcciones.</span></Link>
-          </div>
-        </section>
-      </>}
+      {activeTab === "home" && <nav className="workspace-tasks" aria-label="Accesos de inicio">
+        <Link className="workspace-task-primary" to="/?tab=inventory">
+          <strong>Inventario</strong><span>Busca un instrumento por nombre, etiqueta, número de serie o ubicación.</span>
+        </Link>
+        <Link to="/?tab=review"><strong>Revisión documental</strong><span>Sube un certificado o revisa sus campos.</span></Link>
+        <Link to="/?tab=audit"><strong>Auditoría</strong><span>Consulta eventos y correcciones.</span></Link>
+      </nav>}
+
+      {activeTab === "inventory" && <div id="inventory"><InstrumentFinder apiBaseUrl={API_BASE_URL} /></div>}
 
       {activeTab === "review" && (
         <section>

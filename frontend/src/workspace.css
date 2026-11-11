@@ -25,8 +25,9 @@
   .workspace-page .workspace-panel { padding: 12px; }
   .workspace-page button { min-height: 44px; }
 }
-.workspace-tasks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 16px; }
+.workspace-tasks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 12px; margin-top: 12px; }
 .workspace-tasks a { display: flex; flex-direction: column; gap: 10px; padding: 20px; border: 1px solid #dce6f0; border-radius: 10px; color: #18334c; text-decoration: none; background: #f4f8fc; }
+.workspace-tasks a.workspace-task-primary { grid-column: 1 / -1; background: var(--workspace-tint); }
 .workspace-tasks a:hover, .workspace-tasks a:focus-visible { border-color: #1755a5; }
 .workspace-advanced { margin: 20px 0; }
 .workspace-advanced summary { cursor: pointer; }
