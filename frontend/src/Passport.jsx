@@ -136,6 +136,12 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
     (!current || item.calibration_date > current.calibration_date ||
       (item.calibration_date === current.calibration_date && item.id > current.id)) ? item : current, null);
   const overdue = Boolean(latest?.next_due_date && latest.next_due_date < today);
+  const daysToDue = latest?.next_due_date
+    ? (Date.parse(latest.next_due_date) - Date.parse(today)) / 86400000 : null;
+  const calibrationStatus = calibrations == null ? "Historial no disponible"
+    : !latest ? "Sin historial de calibración"
+    : overdue ? "Vencida" : daysToDue == null ? "Sin fecha de vencimiento"
+    : daysToDue === 0 ? "Vence hoy" : "En plazo";
   const health = score?.health_score_details?.fallback ? null : score?.health_score;
   const healthBand = health == null ? null : health < 50 ? "Bajo" : health < 75 ? "Intermedio" : "Alto";
   const count = (items) => items == null ? null : items.length;
@@ -186,12 +192,23 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
           </nav>
         </header>
         <div className="passport-decision">
-          <div className={`passport-summary-card${overdue ? " passport-overdue" : ""}`}>
-            <h2>Estado de la calibración</h2>
-            <strong>{calibrations == null ? "Historial no disponible" : !latest ? "Sin historial de calibración" : overdue ? "Calibración vencida" : !latest.next_due_date ? "Sin fecha de vencimiento" : "Calibración en plazo"}</strong>
+          <div className="passport-summary-card">
+            <div className="passport-card-heading">
+              <h2>Estado de la calibración</h2>
+              <span className="passport-calibration-badge" data-status={daysToDue == null ? "unknown" : overdue ? "overdue" : daysToDue === 0 ? "today" : "current"}>{calibrationStatus}</span>
+            </div>
+            {daysToDue != null && <div className="passport-calibration-countdown">
+              <div>
+                <strong className="passport-countdown-value">{Math.abs(daysToDue)} <small>{Math.abs(daysToDue) === 1 ? "día" : "días"}</small></strong>
+                <p>{overdue ? "desde el vencimiento" : "hasta el vencimiento"}</p>
+              </div>
+              <div className="passport-calibration-deadline">
+                <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d={sectionIcons.calibrations} /></svg></span>
+                <div><p>{overdue ? "Fecha de vencimiento" : "Próximo vencimiento"}</p><strong>{calendarDate(latest.next_due_date)}</strong></div>
+              </div>
+            </div>}
             {overdue && <p>Programa una nueva calibración y revisa el último certificado.</p>}
-            <dl className="passport-calibration-dates"><div><dt>Última calibración</dt><dd>{calendarDate(latest?.calibration_date)}</dd></div>
-              <div><dt>Próximo vencimiento</dt><dd>{calendarDate(latest?.next_due_date)}</dd></div></dl>
+            <p className="passport-calibration-previous">Última calibración · <strong>{calendarDate(latest?.calibration_date)}</strong></p>
           </div>
           <div className="passport-summary-card">
             <h2>Riesgo estimado de salir de tolerancia</h2>
@@ -200,9 +217,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
                 const value = risk.horizons?.[`${days}_days`]?.probability_out_of_tolerance;
                 return <div key={days}>
                   <dt>{days} días</dt>
-                  <dd>{value != null && <span className="passport-risk-track" aria-hidden="true">
-                    <span style={{ width: `${value * 100}%` }} />
-                  </span>}
+                  <dd className={value == null ? undefined : "passport-risk-ring"} style={value == null ? undefined : { "--risk-share": `${value * 100}%` }}>
                     <strong>{probability(value)}</strong>
                   </dd>
                 </div>;
@@ -210,13 +225,15 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
             </dl> : <p>{risk ? "No estimable" : "No disponible"}</p>}
             <p><Link to={detailUrl("risk")}>Ver detalle del riesgo</Link></p>
           </div>
-          <div className="passport-summary-card">
-            <h2>Health Score</h2>
+          <div className="passport-summary-card passport-health-card" data-band={healthBand}>
+            <div className="passport-card-heading">
+              <h2>Health Score</h2>
+              {healthBand && <span className="passport-score-band">{healthBand}</span>}
+            </div>
             {health == null ? <strong>{score ? "No calculado" : "No disponible"}</strong> :
-              <div className="passport-score-summary" data-band={healthBand}>
+              <div className="passport-score-summary">
                 <div className="passport-score-value">
                   <strong>{number(health)} <small>/ 100</small></strong>
-                  <span className="passport-score-band">{healthBand}</span>
                 </div>
                 <div className="passport-score-scale" aria-hidden="true">
                   <div className="passport-score-track">
@@ -225,6 +242,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
                   <div className="passport-score-ticks"><span>0</span><span>50</span><span>75</span><span>100</span></div>
                 </div>
               </div>}
+            <p><Link to={detailUrl("score")}>Ver detalle del instrumento</Link></p>
           </div>
         </div>
       </div>}
