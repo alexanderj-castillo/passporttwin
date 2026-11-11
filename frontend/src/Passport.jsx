@@ -136,12 +136,12 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
   const count = (items) => items == null ? null : items.length;
   const dataThrough = score?.calibration_data_through || context?.calibration_data_through;
   const sections = [
-    ["identity", "Datos técnicos", detailUrl("identity")],
     ["calibrations", "Calibraciones", detailUrl("calibrations"), count(calibrations)],
-    ["maintenance", "Mantenimiento", detailUrl("maintenance"), count(maintenance)],
-    ["documents", "Documentos", detailUrl("documents"), count(context?.documents)],
-    ["audit", "Historial de eventos", auditUrl],
     ["score", "Salud del instrumento", detailUrl("score"), health == null ? null : number(health) + " / 100"],
+    ["documents", "Documentos", detailUrl("documents"), count(context?.documents)],
+    ["maintenance", "Mantenimiento", detailUrl("maintenance"), count(maintenance)],
+    ["identity", "Datos técnicos", detailUrl("identity")],
+    ["audit", "Historial de eventos", auditUrl],
   ];
   return <AppShell auditHref={auditUrl}>
     <main className="passport passport-redesign" id="summary" data-detail={detail || undefined}>
