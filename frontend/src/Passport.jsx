@@ -196,8 +196,6 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
                   <div className="passport-score-ticks"><span>0</span><span>50</span><span>75</span><span>100</span></div>
                 </div>
               </div>}
-            <p className="passport-data-caption">{health == null ? "Último intento de cálculo" : "Cálculo en esta consulta"} · {dateTimeLabel(score?.calculated_at)}</p>
-            <p className="passport-data-caption">Datos de calibración hasta: {calendarDate(dataThrough)}</p>
           </div>
           <div className="passport-summary-card">
             <h2>Riesgo estimado de salir de tolerancia</h2>
@@ -205,15 +203,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
               {[30, 60, 90].map(days => <div key={days}><dt>{days} días</dt>
                 <dd>{probability(risk.horizons?.[`${days}_days`]?.probability_out_of_tolerance)}</dd></div>)}
             </dl> : <p>{risk ? "No estimable" : "No disponible"}</p>}
-            {risk?.as_of && <p className="passport-data-caption">Fecha del cálculo en este pasaporte · {calendarDate(risk.as_of)}</p>}
-            <div className="passport-fleet-status">
-              <p><strong>Datos del panel de flota</strong></p>
-              <p className="passport-data-caption">
-                <strong data-pending={Boolean(fleetNotice)}>{fleetStatus}</strong>
-                {fleetAnalytics?.as_of && ` · Cálculo del ${calendarDate(fleetAnalytics.as_of)}`}
-              </p>
-              {fleetNotice && <p className="passport-data-caption">{fleetNotice}</p>}
-            </div>
+            {fleetNotice && <p className="passport-fleet-notice">Panel de flota pendiente de actualizar</p>}
             <p><Link to={detailUrl("risk")}>Ver detalle del riesgo</Link></p>
           </div>
           <div className={`passport-summary-card passport-calibration-status${overdue ? " passport-overdue" : ""}`}>
@@ -262,6 +252,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
         </article>
         <article className="passport-summary-card"><h3>Datos del panel de flota</h3>
           <p><strong>{fleetStatus}</strong></p>
+          {fleetAnalytics?.as_of && <p>Fecha de referencia del cálculo · {calendarDate(fleetAnalytics.as_of)}</p>}
           {fleetAnalytics?.computed_at && <p>Última actualización · {dateTimeLabel(fleetAnalytics.computed_at)}</p>}
           {fleetNotice && <p>{fleetNotice}</p>}
         </article>
