@@ -39,9 +39,8 @@
 .passport-id-summary dt svg { width: 16px; height: 16px; flex: none; fill: none; stroke: #1755a5; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .passport-plan-link { display: inline-block; font-size: .82rem; padding: 3px 0; }
 .passport-location-plan { scroll-margin-top: 16px; }
-.passport-demo-photo { position: relative; display: block; margin: 0; overflow: hidden; }
+.passport-demo-photo { display: block; margin: 0; overflow: hidden; }
 .passport-demo-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.passport-demo-photo figcaption { position: absolute; inset: auto 0 0; padding: 3px; text-align: center; background: #18334c; color: #fff; font-size: .65rem; }
 .passport-demo-plan { margin: 10px 0 0; }
 .passport-demo-plan svg { display: block; width: 100%; height: auto; }
 .passport-technical-grid:has(.passport-demo-plan) { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
@@ -72,9 +71,9 @@
 .passport-calibration-history th { background: #eaf1fc; }
 .passport-calibration-history tbody tr:nth-child(even) { background: #f6f8fb; }
 .passport-redesign > section { --section-accent: #406da0; --section-tint: #edf3fb; }
-.passport-redesign > section:is([aria-labelledby=score], [aria-labelledby=calibrations]) { --section-accent: #176b65; --section-tint: #e9f5f2; }
-.passport-redesign > section:is([aria-labelledby=risk], [aria-labelledby=maintenance]) { --section-accent: #9a611f; --section-tint: #fcf3e7; }
-.passport-redesign > section:is([aria-labelledby=documents-heading], [aria-labelledby=events]) { --section-accent: #635496; --section-tint: #f2eef9; }
+.passport-redesign:is([data-detail=score], [data-detail=calibrations]) > section { --section-accent: #176b65; --section-tint: #e9f5f2; }
+.passport-redesign:is([data-detail=risk], [data-detail=maintenance]) > section { --section-accent: #9a611f; --section-tint: #fcf3e7; }
+.passport-redesign[data-detail=documents] > section { --section-accent: #635496; --section-tint: #f2eef9; }
 .passport-redesign > section > h2::after { content: ""; display: block; width: 2.4rem; height: 3px; margin-top: 7px; border-radius: 3px; background: var(--section-accent); }
 .passport-redesign > section .passport-summary-card,
 .passport-redesign > section .passport-horizon { border-inline-start: 3px solid var(--section-accent); }
@@ -96,6 +95,8 @@
 .passport-summary-card h2 { margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; font-size: 1rem; font-weight: 700; color: #18334c; }
 .passport-summary-card p { margin: 6px 0 0; }
 .passport-data-caption { color: #526579; font-size: .82rem; }
+.passport-fleet-status { margin-top: 10px; border-top: 1px solid #e2e8f0; }
+.passport-fleet-status [data-pending=true] { color: #784e00; }
 .passport-score-summary { display: grid; gap: 14px; margin: 14px 0; --band-fill: #fff1cf; --band-text: #784e00; }
 .passport-score-summary[data-band=Bajo] { --band-fill: #fce7e9; --band-text: #96262d; }
 .passport-score-summary[data-band=Alto] { --band-fill: #e1f3e8; --band-text: #166437; }
