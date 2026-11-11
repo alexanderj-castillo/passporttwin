@@ -38,6 +38,10 @@
 .instrument-results a { font-weight: 650; }
 .instrument-results span { font-size: 0.9em; }
 .inventory-groups { display: grid; gap: 10px; margin-block: 14px; }
+.inventory-filters { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; }
+.inventory-filters label { display: grid; gap: 4px; min-width: 0; }
+.inventory-filters label:first-child { flex: 1 1 17rem; max-width: 30rem; }
+.inventory-result-count { color: #526579; font-size: .85rem; }
 .inventory-group { border: 1px solid #d6e0ee; border-radius: 8px; }
 .inventory-group h3 { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 12px; margin: 0; padding: 8px 12px; background: #edf3fb; border-radius: 7px 7px 0 0; font-size: .95rem; }
 .inventory-group h3 small { color: #526579; font-weight: 500; }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import useSearchSession from "./useSearchSession";
 
 const calibrationLabels = {
   CURRENT: ["✓", "En plazo"],
@@ -9,6 +10,7 @@ const calibrationLabels = {
   NO_DUE_DATE: ["–", "Sin vencimiento"],
 };
 const calibrationPriority = { OVERDUE: 0, DUE_SOON: 1, CURRENT: 2, NO_HISTORY: 3, NO_DUE_DATE: 4 };
+const searchDefaults = { query: "", calibrationStatus: "" };
 
 function InstrumentIdentity({ instrument, to, location }) {
   const { technical_name, serial_number, plant_tag } = instrument;
@@ -55,7 +57,7 @@ function InventoryGroups({ instruments }) {
 
 export default function InstrumentFinder({ apiBaseUrl, mode = "passport" }) {
   const [instruments, setInstruments] = useState([]);
-  const [query, setQuery] = useState("");
+  const [{ query, calibrationStatus }, setSearch] = useSearchSession(`instruments:${mode}`, searchDefaults);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   useEffect(() => {
@@ -67,11 +69,24 @@ export default function InstrumentFinder({ apiBaseUrl, mode = "passport" }) {
     return () => controller.abort();
   }, [apiBaseUrl]);
   const search = query.trim().toLowerCase();
-  const matches = instruments.filter(i => [i.technical_name, i.plant_tag, i.serial_number, i.location]
-    .join(" ").toLowerCase().includes(search));
+  const matches = instruments.filter(i =>
+    (mode !== "passport" || !calibrationStatus || i.calibration_status === calibrationStatus)
+    && [i.technical_name, i.plant_tag, i.serial_number, i.location].join(" ").toLowerCase().includes(search));
   return <section className="workspace-panel" aria-labelledby="finder"><h2 id="finder">{mode === "audit" ? "Buscar un instrumento para auditoría" : "Buscar un pasaporte"}</h2>
-    <label htmlFor="passport-search">Nombre, etiqueta, número de serie o ubicación</label>{" "}
-    <input id="passport-search" value={query} onChange={event => setQuery(event.target.value)} />
+    <div className="inventory-filters">
+      <label htmlFor="passport-search">Nombre, etiqueta, número de serie o ubicación
+        <input id="passport-search" value={query} onChange={event => setSearch(current => ({ ...current, query: event.target.value }))} />
+      </label>
+      {mode === "passport" && <label htmlFor="inventory-calibration-filter">Estado de calibración
+        <select id="inventory-calibration-filter" value={calibrationStatus} onChange={event => setSearch(current => ({ ...current, calibrationStatus: event.target.value }))}>
+          <option value="">Todos</option>
+          {Object.keys(calibrationPriority).map(status => <option key={status} value={status}>{calibrationLabels[status][1]}</option>)}
+        </select>
+      </label>}
+    </div>
+    {mode === "passport" && !loading && !error && <p className="inventory-result-count" role="status">
+      {matches.length} {matches.length === 1 ? "instrumento" : "instrumentos"}
+    </p>}
     {loading ? <p role="status">Cargando instrumentos…</p> : error ? <p role="alert">No se ha podido cargar el inventario.</p>
       : !matches.length ? <p>No hay instrumentos que coincidan.</p>
       : mode === "passport" ? <InventoryGroups instruments={matches} />

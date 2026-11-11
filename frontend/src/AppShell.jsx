@@ -2,9 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./passport.css";
 
-export default function AppShell({ active, auditHref = "/?tab=audit", onClickCapture, children }) {
+export default function AppShell({ active, auditHref = "/?tab=audit", children }) {
   const fleetUrl = import.meta.env.VITE_METABASE_DASHBOARD_URL;
-  return <div className="passport-layout" onClickCapture={onClickCapture}>
+  return <div className="passport-layout">
     <nav className="passport-sidebar" aria-label="Navegación general">
       <strong className="passport-brand">
         <span className="passport-brand-icon" aria-hidden="true">
