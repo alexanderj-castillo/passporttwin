@@ -16,7 +16,12 @@ const number = (value) => value == null ? "No estimable" : Number(value).toLocal
 const percentFormat = new Intl.NumberFormat("es-ES", {
   style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1,
 });
-const probability = (value) => value == null ? "No estimable" : percentFormat.format(value);
+function probability(value) {
+  if (value == null) return "No estimable";
+  const formatted = percentFormat.format(value);
+  return value < 1 && formatted === percentFormat.format(1)
+    ? `>${percentFormat.format(0.999)}` : formatted;
+}
 const sectionIcons = {
   identity: "M12 11v5m0-8h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z",
   calibrations: "M7 3v4m10-4v4M4 9h16M4 5h16v16H4zM8 15l2 2 5-5",
@@ -147,17 +152,24 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
     (!current || item.calibration_date > current.calibration_date ||
       (item.calibration_date === current.calibration_date && item.id > current.id)) ? item : current, null);
   const overdue = Boolean(latest?.next_due_date && latest.next_due_date < today);
+  const daysToDue = latest?.next_due_date
+    ? (Date.parse(latest.next_due_date) - Date.parse(today)) / 86400000 : null;
+  const dueSoon = daysToDue != null && daysToDue > 0 && daysToDue <= 30;
+  const calibrationStatus = calibrations == null ? "Historial no disponible"
+    : !latest ? "Sin historial de calibración"
+    : overdue ? "Vencida" : daysToDue == null ? "Sin fecha de vencimiento"
+    : daysToDue === 0 ? "Vence hoy" : dueSoon ? "Vence pronto" : "En plazo";
   const health = score?.health_score_details?.fallback ? null : score?.health_score;
   const healthBand = health == null ? null : health < 50 ? "Bajo" : health < 75 ? "Intermedio" : "Alto";
   const count = (items) => items == null ? null : items.length;
   const dataThrough = score?.calibration_data_through || context?.calibration_data_through;
   const sections = [
-    ["identity", "Datos técnicos", detailUrl("identity")],
     ["calibrations", "Calibraciones", detailUrl("calibrations"), count(calibrations)],
-    ["maintenance", "Mantenimiento", detailUrl("maintenance"), count(maintenance)],
+    ["score", "Salud del instrumento", detailUrl("score")],
     ["documents", "Documentos", detailUrl("documents"), context ? (context.documents?.length || 0) + (context.type_documents?.length || 0) : null],
+    ["maintenance", "Mantenimiento", detailUrl("maintenance"), count(maintenance)],
+    ["identity", "Datos técnicos", detailUrl("identity")],
     ["audit", "Historial de eventos", auditUrl],
-    ["score", "Salud del instrumento", detailUrl("score"), health == null ? null : number(health) + " / 100"],
   ];
   return <AppShell auditHref={auditUrl}>
     <main className="passport passport-redesign" id="summary" data-detail={detail || undefined}>
@@ -208,12 +220,48 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
         </header>
         <div className="passport-decision">
           <div className="passport-summary-card">
-            <h2>Health Score</h2>
+            <div className="passport-card-heading">
+              <h2>Estado de la calibración</h2>
+              <span className="passport-calibration-badge" data-status={daysToDue == null ? "unknown" : overdue ? "overdue" : daysToDue === 0 ? "today" : dueSoon ? "soon" : "current"}>{calibrationStatus}</span>
+            </div>
+            {daysToDue != null && <div className="passport-calibration-countdown">
+              <div>
+                <strong className="passport-countdown-value">{Math.abs(daysToDue)} <small>{Math.abs(daysToDue) === 1 ? "día" : "días"}</small></strong>
+                <p>{overdue ? "desde el vencimiento" : "hasta el vencimiento"}</p>
+              </div>
+              <div className="passport-calibration-deadline">
+                <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d={sectionIcons.calibrations} /></svg></span>
+                <div><p>{overdue ? "Fecha de vencimiento" : "Próximo vencimiento"}</p><strong>{calendarDate(latest.next_due_date)}</strong></div>
+              </div>
+            </div>}
+            {overdue && <p>Programa una nueva calibración y revisa el último certificado.</p>}
+            <p className="passport-calibration-previous">Última calibración · <strong>{calendarDate(latest?.calibration_date)}</strong></p>
+            <Link className="passport-summary-link" to={detailUrl("calibrations")}>Ver historial de calibración</Link>
+          </div>
+          <div className="passport-summary-card">
+            <h2>Riesgo estimado de salir de tolerancia</h2>
+            {risk?.status === "ESTIMATED" ? <dl className="passport-risk-summary">
+              {[30, 60, 90].map(days => {
+                const value = risk.horizons?.[`${days}_days`]?.probability_out_of_tolerance;
+                return <div key={days}>
+                  <dt>{days} días</dt>
+                  <dd className={value == null ? undefined : "passport-risk-ring"} style={value == null ? undefined : { "--risk-share": `${value * 100}%` }}>
+                    <strong>{probability(value)}</strong>
+                  </dd>
+                </div>;
+              })}
+            </dl> : <p>{risk ? "No estimable" : "No disponible"}</p>}
+            <Link className="passport-summary-link" to={detailUrl("risk")}>Ver detalle del riesgo</Link>
+          </div>
+          <div className="passport-summary-card passport-health-card" data-band={healthBand}>
+            <div className="passport-card-heading">
+              <h2>Health Score</h2>
+              {healthBand && <span className="passport-score-band">{healthBand}</span>}
+            </div>
             {health == null ? <strong>{score ? "No calculado" : "No disponible"}</strong> :
-              <div className="passport-score-summary" data-band={healthBand}>
+              <div className="passport-score-summary">
                 <div className="passport-score-value">
                   <strong>{number(health)} <small>/ 100</small></strong>
-                  <span className="passport-score-band">{healthBand}</span>
                 </div>
                 <div className="passport-score-scale" aria-hidden="true">
                   <div className="passport-score-track">
@@ -227,33 +275,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
             <button type="button" className="passport-secondary-action" onClick={refreshAnalytics} disabled={refreshing}>
               {refreshing ? "Calculando…" : "Actualizar cálculo"}
             </button>
-          </div>
-          <div className="passport-summary-card">
-            <h2>Riesgo estimado de salir de tolerancia</h2>
-            {risk?.status === "ESTIMATED" ? <dl className="passport-risk-summary">
-              {[30, 60, 90].map(days => <div key={days}><dt>{days} días</dt>
-                <dd>{probability(risk.horizons?.[`${days}_days`]?.probability_out_of_tolerance)}</dd></div>)}
-            </dl> : <p>{risk ? "No estimable" : "No disponible"}</p>}
-            {risk?.as_of && <p className="passport-data-caption">Fecha del cálculo en este pasaporte · {calendarDate(risk.as_of)}</p>}
-            <div className="passport-fleet-status">
-              <p><strong>Datos del panel de flota</strong></p>
-              <p className="passport-data-caption">
-                <strong data-pending={Boolean(fleetNotice)}>{fleetStatus}</strong>
-                {fleetAnalytics?.as_of && ` · Cálculo del ${calendarDate(fleetAnalytics.as_of)}`}
-              </p>
-              {fleetNotice && <p className="passport-data-caption">{fleetNotice}</p>}
-            </div>
-            <p><Link to={detailUrl("risk")}>Ver detalle del riesgo</Link></p>
-          </div>
-          <div className={`passport-summary-card passport-calibration-status${overdue ? " passport-overdue" : ""}`}>
-            <h2>Estado de la calibración</h2>
-            <strong>{calibrations == null ? "Historial no disponible" : !latest ? "Sin historial de calibración" : overdue ? "Calibración vencida" : !latest.next_due_date ? "Sin fecha de vencimiento" : "Calibración en plazo"}</strong>
-            {overdue && <p>Programa una nueva calibración y revisa el último certificado.</p>}
-            <dl className="passport-calibration-dates"><div><dt>Última calibración</dt><dd>{calendarDate(latest?.calibration_date)}</dd></div>
-              <div><dt>Próximo vencimiento</dt><dd>{calendarDate(latest?.next_due_date)}</dd></div></dl>
-            <Link className="passport-primary-action" to={detailUrl(calibrations != null && !latest ? "documents" : "calibrations")}>
-              {calibrations != null && !latest ? "Ver documentación de calibración" : "Ver historial de calibraciones"}
-            </Link>
+            <Link className="passport-summary-link" to={detailUrl("score")}>Ver detalle del instrumento</Link>
           </div>
         </div>
       </div>}
@@ -291,6 +313,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
         </article>
         <article className="passport-summary-card"><h3>Datos del panel de flota</h3>
           <p><strong>{fleetStatus}</strong></p>
+          {fleetAnalytics?.as_of && <p>Fecha de referencia del cálculo · {calendarDate(fleetAnalytics.as_of)}</p>}
           {fleetAnalytics?.computed_at && <p>Última actualización · {dateTimeLabel(fleetAnalytics.computed_at)}</p>}
           {fleetNotice && <p>{fleetNotice}</p>}
         </article>

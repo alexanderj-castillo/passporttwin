@@ -31,9 +31,9 @@ persistencia explícita descrita en el contrato de snapshots; no se modifica el 
    python bi/metabase/provision_fleet.py --database-id 2 --collection-id 3
    ```
 
-El script crea un dashboard nuevo y diez preguntas guardadas; imprime su URL.
-Las tablas de prioridad y riesgo incluyen enlaces al pasaporte y la unidad del
-catálogo. Para cambiar el destino, añadir `--passport-base-url https://tu-frontend`
+El script crea un dashboard nuevo y once preguntas guardadas e imprime su URL.
+Las tablas de prioridad, vencimientos y riesgo incluyen enlaces al pasaporte.
+Para cambiar el destino, añadir `--passport-base-url https://tu-frontend`
 al comando (origen sin ruta, credenciales ni query). Su valor por defecto es
 `PASSPORT_FRONTEND_BASE_URL` del entorno o `http://localhost:5173`.
 No modifica dashboards existentes. Repetirlo crea otra copia deliberadamente.
@@ -44,11 +44,12 @@ de reintentar. No envía credenciales por consola; usar HTTPS fuera de una red l
 
 - KPIs: instrumentos activos, calibraciones vencidas, vencimientos en 30 días y
   documentos vinculados que requieren revisión o han fallado extracción.
-- Distribución por semáforo, primeras 50 prioridades y próximos vencimientos a 90 días.
+- Primeras 50 prioridades bajo los KPIs, distribución por semáforo con leyenda
+  y vencimientos en los próximos 90 días.
 - Filtros de texto por familia y ubicación, aplicados a todas las preguntas.
-- Ratio observado `abs(error) / tolerancia`: no es probabilidad de fallo.
-- Vigencia de snapshots, Health Score por versión/pesos y riesgo experimental
-  a 30/60/90 días, con fecha de referencia y estados de no disponibilidad.
+- Vigencia de los cálculos y riesgo experimental a 30/60/90 días con fecha de referencia.
+- Preguntas técnicas guardadas en la colección para consultar Health Score por versión
+  y pesos, así como el detalle de riesgo, unidad y ratio observado `abs(error) / tolerancia`.
 
 Se excluyen retirados. Una fila por activo; documentos agregados antes de unir
 para evitar duplicar instrumentos. La última calibración no futura se elige por

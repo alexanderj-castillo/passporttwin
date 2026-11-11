@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route, Link, useSearchParams, useLocation } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Link, useBlocker, useSearchParams, useLocation } from "react-router-dom";
 import Passport from "./Passport";
 import AppShell from "./AppShell";
 import DocumentOriginal from "./DocumentOriginal";
@@ -284,9 +284,12 @@ function App() {
   const [params] = useSearchParams();
   const { hash } = useLocation();
   const [documentRefresh, setDocumentRefresh] = useState(0);
-  const initialTab = params.get("tab") === "audit" ? "audit"
-    : params.get("tab") === "documents" ? "documents"
-    : (params.get("tab") === "review" || params.has("documentId")) ? "review" : "home";
+  const requestedTab = params.get("tab");
+  const initialTab = requestedTab === "audit" ? "audit"
+    : requestedTab === "documents" ? "documents"
+    : requestedTab === "review" || params.has("documentId") ? "review"
+    : requestedTab === "inventory" || hash === "#inventory" ? "inventory"
+    : "home";
   const hasDocument = /^\d+$/.test(params.get("documentId") || "");
   const hasAudit = /^\d+$/.test(params.get("id") || "");
   const reviewingDocument = initialTab === "review" && hasDocument;
@@ -338,16 +341,18 @@ function App() {
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [hasUnsavedChanges]);
-  function guardNavigation(event) {
-    const link = event.target.closest?.("a");
-    if (hasUnsavedChanges && link && link.target !== "_blank") {
-      const destination = new URL(link.href, window.location.href);
-      if (destination.pathname + destination.search !== window.location.pathname + window.location.search) {
-        event.preventDefault(); event.stopPropagation();
-        setMessage("Guarda o descarta los cambios locales antes de cambiar de vista.");
-      }
-    }
-  }
+  const navigation = useBlocker(({ currentLocation, nextLocation }) => hasUnsavedChanges &&
+    (currentLocation.pathname !== nextLocation.pathname || currentLocation.search !== nextLocation.search));
+  const navigationWarning = React.useRef(null);
+  const previousFocus = React.useRef(null);
+  React.useEffect(() => {
+    if (navigation.state !== "blocked") return;
+    previousFocus.current = document.activeElement;
+    navigationWarning.current?.focus();
+  }, [navigation.state]);
+  React.useEffect(() => {
+    if (!hasUnsavedChanges && navigation.state === "blocked") navigation.reset();
+  }, [hasUnsavedChanges, navigation]);
 
   /* Estado de la vista de auditoría (pestaña "audit"). */
   const [auditEntityType, setAuditEntityType] = useState(params.get("entity") === "instrument" ? "instrument" : "document");
@@ -573,27 +578,39 @@ function App() {
   }
 
   return (
-    <AppShell active={activeTab} onClickCapture={guardNavigation}>
+    <AppShell active={activeTab}>
     <main className="passport workspace-page" data-view={activeTab}>
       <header className="workspace-heading">
       <p>Espacio de trabajo</p>
-      <h1 id="workspace-title" tabIndex={-1}>{auditingPassport ? "Historial de eventos" : { home: "Inventario", review: "Revisión documental", documents: "Biblioteca documental", audit: "Auditoría y trazabilidad" }[activeTab]}</h1>
+      <h1 id="workspace-title" tabIndex={-1}>{auditingPassport ? "Historial de eventos" : { home: "Inicio", inventory: "Inventario", review: "Revisión documental", documents: "Biblioteca documental", audit: "Auditoría y trazabilidad" }[activeTab]}</h1>
+      {activeTab === "home" && <p>Pasaportes digitales y trazabilidad de instrumentos.</p>}
       {(reviewingDocument || auditingDocument) && <p>
         <Link to={`/?tab=${activeTab}${passportQuery}`}>Volver a buscar documentos</Link>
       </p>}
       {hasPassport && <Link className={auditingPassport ? "passport-primary-action" : "workspace-back"} to={`/passport/${passportId}`}>Volver al pasaporte</Link>}
       </header>
+      {navigation.state === "blocked" && <div className="workspace-panel document-review-actions">
+        <p ref={navigationWarning} tabIndex={-1} role="alert">Tienes correcciones sin guardar. Si sales, perderás esos cambios.</p>
+        <div className="workspace-pages">
+          <button type="button" onClick={() => {
+            navigation.reset();
+            previousFocus.current?.focus();
+          }}>Seguir editando</button>
+          <button type="button" onClick={navigation.proceed}>Descartar cambios y salir</button>
+        </div>
+      </div>}
 
-      {activeTab === "home" && <>
+      {activeTab === "home" && <nav className="workspace-tasks" aria-label="Accesos de inicio">
+        <Link className="workspace-task-primary" to="/?tab=inventory">
+          <strong>Inventario</strong><span>Busca un instrumento por nombre, etiqueta, número de serie o ubicación.</span>
+        </Link>
+        <Link to="/?tab=review"><strong>Revisión documental</strong><span>Sube un certificado o revisa sus campos.</span></Link>
+        <Link to="/?tab=audit"><strong>Auditoría</strong><span>Consulta eventos y correcciones.</span></Link>
+      </nav>}
+
+      {activeTab === "inventory" && <>
         <div id="inventory"><InstrumentFinder apiBaseUrl={API_BASE_URL} /></div>
         <NewInstrumentForm apiBaseUrl={API_BASE_URL} />
-        <section className="workspace-panel" aria-labelledby="tasks-heading">
-          <h2 id="tasks-heading">Otras tareas</h2>
-          <div className="workspace-tasks">
-            <Link to="/?tab=review"><strong>Revisar un documento</strong><span>Encuentra el certificado por nombre o instrumento, revisa sus campos e incorpóralo al historial.</span></Link>
-            <Link to="/?tab=audit"><strong>Consultar trazabilidad</strong><span>Selecciona un documento o instrumento para ver sus eventos y correcciones.</span></Link>
-          </div>
-        </section>
       </>}
 
       {activeTab === "documents" && (
@@ -907,17 +924,17 @@ function Workspace() {
   return <App key={location.pathname + location.search} />;
 }
 
+const router = createBrowserRouter([
+  { path: "/documents/:documentId/original", element: <DocumentOriginal apiBaseUrl={API_BASE_URL} /> },
+  { path: "/passport/:publicId", element: <Passport key="passport" apiBaseUrl={API_BASE_URL} /> },
+  { path: "/passport/:publicId/plano", element: <Passport key="location-plan" apiBaseUrl={API_BASE_URL} planOnly /> },
+  { path: "*", element: <Workspace /> },
+]);
+
 ReactDOM.createRoot(
   document.getElementById("root")
 ).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/documents/:documentId/original" element={<DocumentOriginal apiBaseUrl={API_BASE_URL} />} />
-        <Route path="/passport/:publicId" element={<Passport key="passport" apiBaseUrl={API_BASE_URL} />} />
-        <Route path="/passport/:publicId/plano" element={<Passport key="location-plan" apiBaseUrl={API_BASE_URL} planOnly />} />
-        <Route path="*" element={<Workspace />} />
-      </Routes>
-    </BrowserRouter>
+    <RouterProvider router={router} />
   </React.StrictMode>
 );

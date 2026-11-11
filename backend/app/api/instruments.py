@@ -5,6 +5,7 @@ from typing import List
 from app.database.session import get_db
 from app.models.instrument import InstrumentType, InstrumentUnit
 from app.schemas.instrument import (
+    InstrumentInventoryResponse,
     InstrumentTypeCreate,
     InstrumentTypeResponse,
     InstrumentUnitCreate,
@@ -38,7 +39,7 @@ import io
 import os
 import hashlib
 import pandas as pd
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from fastapi import UploadFile, File
 from app.models.document import Document
@@ -163,9 +164,41 @@ def register_instrument(payload: InstrumentUnitCreate, db: Session = Depends(get
 
     return new_instrument
 
-@router.get("", response_model=List[InstrumentUnitResponse])
+@router.get("", response_model=List[InstrumentInventoryResponse])
 def list_instruments(db: Session = Depends(get_db)):
-    return db.query(InstrumentUnit).all()
+    today = date.today()
+    latest_id = (
+        db.query(CalibrationEvent.id)
+        .filter(CalibrationEvent.instrument_unit_id == InstrumentUnit.id, CalibrationEvent.calibration_date <= today)
+        .order_by(CalibrationEvent.calibration_date.desc(), CalibrationEvent.id.desc())
+        .limit(1)
+        .correlate(InstrumentUnit)
+        .scalar_subquery()
+    )
+    rows = (
+        db.query(InstrumentUnit, CalibrationEvent.id, CalibrationEvent.next_due_date)
+        .select_from(InstrumentUnit)
+        .outerjoin(CalibrationEvent, CalibrationEvent.id == latest_id)
+        .all()
+    )
+    soon = today + timedelta(days=30)
+    instruments = []
+    for instrument, calibration_id, due in rows:
+        if calibration_id is None:
+            calibration_status = "NO_HISTORY"
+        elif due is None:
+            calibration_status = "NO_DUE_DATE"
+        elif due < today:
+            calibration_status = "OVERDUE"
+        elif due <= soon:
+            calibration_status = "DUE_SOON"
+        else:
+            calibration_status = "CURRENT"
+        instruments.append(InstrumentInventoryResponse(
+            **InstrumentUnitResponse.model_validate(instrument).model_dump(),
+            calibration_status=calibration_status,
+        ))
+    return instruments
 
 @router.get("/check-serial")
 def check_serial(serial: str = Query(..., min_length=1, max_length=120), db: Session = Depends(get_db)):

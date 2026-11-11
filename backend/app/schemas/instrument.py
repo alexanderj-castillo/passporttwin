@@ -3,7 +3,7 @@
 ###############################################
 
 from pydantic import BaseModel, ConfigDict
-from typing import Optional
+from typing import Literal, Optional
 from uuid import UUID
 from datetime import datetime, date
 
@@ -59,3 +59,7 @@ class InstrumentUnitResponse(BaseModel):
     aas_sync_status: str
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
+
+
+class InstrumentInventoryResponse(InstrumentUnitResponse):
+    calibration_status: Literal["CURRENT", "DUE_SOON", "OVERDUE", "NO_HISTORY", "NO_DUE_DATE"]
