@@ -96,7 +96,7 @@
 .passport-card-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 10px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
 .passport-card-heading h2 { margin: 0; padding: 0; border: 0; }
 .passport-summary-card p { margin: 6px 0 0; }
-.passport-summary-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: 4px 0; font-size: .8rem; text-underline-offset: 2px; }
+.passport-summary-link { display: flex; width: fit-content; max-width: 100%; align-items: center; gap: 6px; margin-top: 6px; margin-inline-start: auto; padding: 4px 0; font-size: .8rem; text-align: end; text-underline-offset: 2px; }
 .passport-summary-link::before { content: ""; flex: none; border-block: 4px solid transparent; border-inline-start: 6px solid currentColor; }
 @media (pointer: coarse) { .passport-summary-link { min-height: 44px; box-sizing: border-box; } }
 .passport-data-caption { color: #526579; font-size: .82rem; }
