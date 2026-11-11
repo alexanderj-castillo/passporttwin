@@ -138,10 +138,11 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
   const overdue = Boolean(latest?.next_due_date && latest.next_due_date < today);
   const daysToDue = latest?.next_due_date
     ? (Date.parse(latest.next_due_date) - Date.parse(today)) / 86400000 : null;
+  const dueSoon = daysToDue != null && daysToDue > 0 && daysToDue <= 30;
   const calibrationStatus = calibrations == null ? "Historial no disponible"
     : !latest ? "Sin historial de calibración"
     : overdue ? "Vencida" : daysToDue == null ? "Sin fecha de vencimiento"
-    : daysToDue === 0 ? "Vence hoy" : "En plazo";
+    : daysToDue === 0 ? "Vence hoy" : dueSoon ? "Vence pronto" : "En plazo";
   const health = score?.health_score_details?.fallback ? null : score?.health_score;
   const healthBand = health == null ? null : health < 50 ? "Bajo" : health < 75 ? "Intermedio" : "Alto";
   const count = (items) => items == null ? null : items.length;
@@ -195,7 +196,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
           <div className="passport-summary-card">
             <div className="passport-card-heading">
               <h2>Estado de la calibración</h2>
-              <span className="passport-calibration-badge" data-status={daysToDue == null ? "unknown" : overdue ? "overdue" : daysToDue === 0 ? "today" : "current"}>{calibrationStatus}</span>
+              <span className="passport-calibration-badge" data-status={daysToDue == null ? "unknown" : overdue ? "overdue" : daysToDue === 0 ? "today" : dueSoon ? "soon" : "current"}>{calibrationStatus}</span>
             </div>
             {daysToDue != null && <div className="passport-calibration-countdown">
               <div>
