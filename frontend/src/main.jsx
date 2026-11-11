@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route, Link, useSearchParams, useLocation } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Link, useBlocker, useSearchParams, useLocation } from "react-router-dom";
 import Passport from "./Passport";
 import AppShell from "./AppShell";
 import DocumentOriginal from "./DocumentOriginal";
@@ -429,16 +429,18 @@ function App() {
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [hasUnsavedChanges]);
-  function guardNavigation(event) {
-    const link = event.target.closest?.("a");
-    if (hasUnsavedChanges && link && link.target !== "_blank") {
-      const destination = new URL(link.href, window.location.href);
-      if (destination.pathname + destination.search !== window.location.pathname + window.location.search) {
-        event.preventDefault(); event.stopPropagation();
-        setMessage("Guarda o descarta los cambios locales antes de cambiar de vista.");
-      }
-    }
-  }
+  const navigation = useBlocker(({ currentLocation, nextLocation }) => hasUnsavedChanges &&
+    (currentLocation.pathname !== nextLocation.pathname || currentLocation.search !== nextLocation.search));
+  const navigationWarning = React.useRef(null);
+  const previousFocus = React.useRef(null);
+  React.useEffect(() => {
+    if (navigation.state !== "blocked") return;
+    previousFocus.current = document.activeElement;
+    navigationWarning.current?.focus();
+  }, [navigation.state]);
+  React.useEffect(() => {
+    if (!hasUnsavedChanges && navigation.state === "blocked") navigation.reset();
+  }, [hasUnsavedChanges, navigation]);
 
   /* Estado de la vista de auditoría (pestaña "audit"). */
   const [auditEntityType, setAuditEntityType] = useState(params.get("entity") === "instrument" ? "instrument" : "document");
@@ -663,7 +665,7 @@ function App() {
   }
 
   return (
-    <AppShell active={activeTab} onClickCapture={guardNavigation}>
+    <AppShell active={activeTab}>
     <main className="passport workspace-page" data-view={activeTab}>
       <header className="workspace-heading">
       <p>Espacio de trabajo</p>
@@ -674,6 +676,16 @@ function App() {
       </p>}
       {hasPassport && <Link className={auditingPassport ? "passport-primary-action" : "workspace-back"} to={`/passport/${passportId}`}>Volver al pasaporte</Link>}
       </header>
+      {navigation.state === "blocked" && <div className="workspace-panel document-review-actions">
+        <p ref={navigationWarning} tabIndex={-1} role="alert">Tienes correcciones sin guardar. Si sales, perderás esos cambios.</p>
+        <div className="workspace-pages">
+          <button type="button" onClick={() => {
+            navigation.reset();
+            previousFocus.current?.focus();
+          }}>Seguir editando</button>
+          <button type="button" onClick={navigation.proceed}>Descartar cambios y salir</button>
+        </div>
+      </div>}
 
       {activeTab === "home" && <nav className="workspace-tasks" aria-label="Accesos de inicio">
         <Link className="workspace-task-primary" to="/?tab=inventory">
@@ -1062,17 +1074,17 @@ function Workspace() {
   return <App key={location.pathname + location.search} />;
 }
 
+const router = createBrowserRouter([
+  { path: "/documents/:documentId/original", element: <DocumentOriginal apiBaseUrl={API_BASE_URL} /> },
+  { path: "/passport/:publicId", element: <Passport key="passport" apiBaseUrl={API_BASE_URL} /> },
+  { path: "/passport/:publicId/plano", element: <Passport key="location-plan" apiBaseUrl={API_BASE_URL} planOnly /> },
+  { path: "*", element: <Workspace /> },
+]);
+
 ReactDOM.createRoot(
   document.getElementById("root")
 ).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/documents/:documentId/original" element={<DocumentOriginal apiBaseUrl={API_BASE_URL} />} />
-        <Route path="/passport/:publicId" element={<Passport key="passport" apiBaseUrl={API_BASE_URL} />} />
-        <Route path="/passport/:publicId/plano" element={<Passport key="location-plan" apiBaseUrl={API_BASE_URL} planOnly />} />
-        <Route path="*" element={<Workspace />} />
-      </Routes>
-    </BrowserRouter>
+    <RouterProvider router={router} />
   </React.StrictMode>
 );
