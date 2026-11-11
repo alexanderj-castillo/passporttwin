@@ -95,7 +95,6 @@
 .passport-summary-card h2 { margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; font-size: 1rem; font-weight: 700; color: #18334c; }
 .passport-summary-card p { margin: 6px 0 0; }
 .passport-data-caption { color: #526579; font-size: .82rem; }
-.passport-fleet-notice { color: #784e00; font-size: .82rem; font-weight: 650; }
 .passport-score-summary { display: grid; gap: 14px; margin: 14px 0; --band-fill: #fff1cf; --band-text: #784e00; }
 .passport-score-summary[data-band=Bajo] { --band-fill: #fce7e9; --band-text: #96262d; }
 .passport-score-summary[data-band=Alto] { --band-fill: #e1f3e8; --band-text: #166437; }
@@ -109,8 +108,12 @@
 .passport-score-ticks span:nth-child(2), .passport-score-ticks span:nth-child(3) { position: absolute; transform: translateX(-50%); }
 .passport-score-ticks span:nth-child(2) { left: 50%; }
 .passport-score-ticks span:nth-child(3) { left: 75%; }
-.passport-risk-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 0; text-align: center; }
-.passport-risk-summary dd { display: grid; place-items: center; width: min(100%, 68px); aspect-ratio: 1; margin: 4px auto; padding: 3px; box-sizing: border-box; border: 2px solid #125e60; border-radius: 50%; background: #e7f5f3; font-size: clamp(.66rem, 1.4vw, .85rem); line-height: 1.1; }
+.passport-risk-summary { display: grid; gap: 8px; margin: 0; }
+.passport-risk-summary > div { display: grid; grid-template-columns: 3.75rem minmax(0, 1fr); align-items: center; gap: 8px; }
+.passport-risk-summary dd { display: grid; grid-template-columns: minmax(0, 1fr) 6.25rem; align-items: center; gap: 8px; margin: 0; text-align: right; font-size: .85rem; font-variant-numeric: tabular-nums; }
+.passport-risk-summary dd strong { grid-column: 2; }
+.passport-risk-track { display: block; height: 8px; overflow: hidden; border-radius: 4px; background: #e2e8f0; }
+.passport-risk-track > span { display: block; height: 100%; border-radius: inherit; background: #125e60; }
 .passport-overdue > strong { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #fff0e4; color: #813711; font-size: .85rem; }
 .passport-calibration-dates { margin: 10px 0; font-size: .85rem; }
 .passport .passport-primary-action { display: inline-block; padding: 10px 12px; border-radius: 7px; background: #125e60; color: #fff; text-decoration: none; font-weight: 650; }
@@ -127,7 +130,6 @@
   .passport-identity-band { border-radius: 10px; }
   .passport-photo-placeholder { flex-basis: 86px; }
   .passport-decision { grid-row: 2; }
-  .passport-calibration-status { grid-row: 1; }
   .passport-instrument-nav, .passport-id-summary { background: #fff; border-radius: 8px; }
 }
 @media (max-width: 480px) {

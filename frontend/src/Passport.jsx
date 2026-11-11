@@ -16,7 +16,12 @@ const number = (value) => value == null ? "No estimable" : Number(value).toLocal
 const percentFormat = new Intl.NumberFormat("es-ES", {
   style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1,
 });
-const probability = (value) => value == null ? "No estimable" : percentFormat.format(value);
+function probability(value) {
+  if (value == null) return "No estimable";
+  const formatted = percentFormat.format(value);
+  return value < 1 && formatted === percentFormat.format(1)
+    ? `>${percentFormat.format(0.999)}` : formatted;
+}
 const sectionIcons = {
   identity: "M12 11v5m0-8h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z",
   calibrations: "M7 3v4m10-4v4M4 9h16M4 5h16v16H4zM8 15l2 2 5-5",
@@ -137,7 +142,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
   const dataThrough = score?.calibration_data_through || context?.calibration_data_through;
   const sections = [
     ["calibrations", "Calibraciones", detailUrl("calibrations"), count(calibrations)],
-    ["score", "Salud del instrumento", detailUrl("score"), health == null ? null : number(health) + " / 100"],
+    ["score", "Salud del instrumento", detailUrl("score")],
     ["documents", "Documentos", detailUrl("documents"), count(context?.documents)],
     ["maintenance", "Mantenimiento", detailUrl("maintenance"), count(maintenance)],
     ["identity", "Datos técnicos", detailUrl("identity")],
@@ -181,6 +186,30 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
           </nav>
         </header>
         <div className="passport-decision">
+          <div className={`passport-summary-card${overdue ? " passport-overdue" : ""}`}>
+            <h2>Estado de la calibración</h2>
+            <strong>{calibrations == null ? "Historial no disponible" : !latest ? "Sin historial de calibración" : overdue ? "Calibración vencida" : !latest.next_due_date ? "Sin fecha de vencimiento" : "Calibración en plazo"}</strong>
+            {overdue && <p>Programa una nueva calibración y revisa el último certificado.</p>}
+            <dl className="passport-calibration-dates"><div><dt>Última calibración</dt><dd>{calendarDate(latest?.calibration_date)}</dd></div>
+              <div><dt>Próximo vencimiento</dt><dd>{calendarDate(latest?.next_due_date)}</dd></div></dl>
+          </div>
+          <div className="passport-summary-card">
+            <h2>Riesgo estimado de salir de tolerancia</h2>
+            {risk?.status === "ESTIMATED" ? <dl className="passport-risk-summary">
+              {[30, 60, 90].map(days => {
+                const value = risk.horizons?.[`${days}_days`]?.probability_out_of_tolerance;
+                return <div key={days}>
+                  <dt>{days} días</dt>
+                  <dd>{value != null && <span className="passport-risk-track" aria-hidden="true">
+                    <span style={{ width: `${value * 100}%` }} />
+                  </span>}
+                    <strong>{probability(value)}</strong>
+                  </dd>
+                </div>;
+              })}
+            </dl> : <p>{risk ? "No estimable" : "No disponible"}</p>}
+            <p><Link to={detailUrl("risk")}>Ver detalle del riesgo</Link></p>
+          </div>
           <div className="passport-summary-card">
             <h2>Health Score</h2>
             {health == null ? <strong>{score ? "No calculado" : "No disponible"}</strong> :
@@ -196,25 +225,6 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
                   <div className="passport-score-ticks"><span>0</span><span>50</span><span>75</span><span>100</span></div>
                 </div>
               </div>}
-          </div>
-          <div className="passport-summary-card">
-            <h2>Riesgo estimado de salir de tolerancia</h2>
-            {risk?.status === "ESTIMATED" ? <dl className="passport-risk-summary">
-              {[30, 60, 90].map(days => <div key={days}><dt>{days} días</dt>
-                <dd>{probability(risk.horizons?.[`${days}_days`]?.probability_out_of_tolerance)}</dd></div>)}
-            </dl> : <p>{risk ? "No estimable" : "No disponible"}</p>}
-            {fleetNotice && <p className="passport-fleet-notice">Panel de flota pendiente de actualizar</p>}
-            <p><Link to={detailUrl("risk")}>Ver detalle del riesgo</Link></p>
-          </div>
-          <div className={`passport-summary-card passport-calibration-status${overdue ? " passport-overdue" : ""}`}>
-            <h2>Estado de la calibración</h2>
-            <strong>{calibrations == null ? "Historial no disponible" : !latest ? "Sin historial de calibración" : overdue ? "Calibración vencida" : !latest.next_due_date ? "Sin fecha de vencimiento" : "Calibración en plazo"}</strong>
-            {overdue && <p>Programa una nueva calibración y revisa el último certificado.</p>}
-            <dl className="passport-calibration-dates"><div><dt>Última calibración</dt><dd>{calendarDate(latest?.calibration_date)}</dd></div>
-              <div><dt>Próximo vencimiento</dt><dd>{calendarDate(latest?.next_due_date)}</dd></div></dl>
-            <Link className="passport-primary-action" to={detailUrl(calibrations != null && !latest ? "documents" : "calibrations")}>
-              {calibrations != null && !latest ? "Ver documentación de calibración" : "Ver historial de calibraciones"}
-            </Link>
           </div>
         </div>
       </div>}
