@@ -209,6 +209,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
             </div>}
             {overdue && <p>Programa una nueva calibración y revisa el último certificado.</p>}
             <p className="passport-calibration-previous">Última calibración · <strong>{calendarDate(latest?.calibration_date)}</strong></p>
+            <Link className="passport-summary-link" to={detailUrl("calibrations")}>Ver historial de calibración</Link>
           </div>
           <div className="passport-summary-card">
             <h2>Riesgo estimado de salir de tolerancia</h2>
@@ -223,7 +224,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
                 </div>;
               })}
             </dl> : <p>{risk ? "No estimable" : "No disponible"}</p>}
-            <p><Link to={detailUrl("risk")}>Ver detalle del riesgo</Link></p>
+            <Link className="passport-summary-link" to={detailUrl("risk")}>Ver detalle del riesgo</Link>
           </div>
           <div className="passport-summary-card passport-health-card" data-band={healthBand}>
             <div className="passport-card-heading">
@@ -242,7 +243,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
                   <div className="passport-score-ticks"><span>0</span><span>50</span><span>75</span><span>100</span></div>
                 </div>
               </div>}
-            <p><Link to={detailUrl("score")}>Ver detalle del instrumento</Link></p>
+            <Link className="passport-summary-link" to={detailUrl("score")}>Ver detalle del instrumento</Link>
           </div>
         </div>
       </div>}
