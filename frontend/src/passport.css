@@ -33,7 +33,7 @@
 .passport-identity-band h1 { font-size: clamp(1.2rem, 2.5vw, 1.7rem); line-height: 1.2; }
 .passport-identity-band p { margin: 0; }
 .passport-photo-placeholder { display: grid; place-items: center; flex: 0 0 clamp(92px, 11vw, 112px); aspect-ratio: 1; border-radius: 10px; background: #dce7f6; color: #415a76; font-size: .8rem; }
-.passport-id-summary, .passport-calibration-dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.passport-id-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
 .passport-id-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 14px 16px; }
 .passport-id-summary dt { display: flex; align-items: center; gap: 5px; font-size: .85rem; }
 .passport-id-summary dt svg { width: 16px; height: 16px; flex: none; fill: none; stroke: #1755a5; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
@@ -93,11 +93,14 @@
 .passport-decision { display: grid; gap: 10px; }
 .passport-summary-card { padding: 12px 14px; }
 .passport-summary-card h2 { margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; font-size: 1rem; font-weight: 700; color: #18334c; }
+.passport-card-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 10px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+.passport-card-heading h2 { margin: 0; padding: 0; border: 0; }
 .passport-summary-card p { margin: 6px 0 0; }
 .passport-data-caption { color: #526579; font-size: .82rem; }
-.passport-score-summary { display: grid; gap: 14px; margin: 14px 0; --band-fill: #fff1cf; --band-text: #784e00; }
-.passport-score-summary[data-band=Bajo] { --band-fill: #fce7e9; --band-text: #96262d; }
-.passport-score-summary[data-band=Alto] { --band-fill: #e1f3e8; --band-text: #166437; }
+.passport-score-summary { display: grid; gap: 14px; margin: 14px 0; }
+.passport-health-card { --band-fill: #fff1cf; --band-text: #784e00; }
+.passport-health-card[data-band=Bajo] { --band-fill: #fce7e9; --band-text: #96262d; }
+.passport-health-card[data-band=Alto] { --band-fill: #e1f3e8; --band-text: #166437; }
 .passport-score-value { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 12px; }
 .passport-score-value strong { font-size: 2rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .passport-score-value small { font-size: .85rem; }
@@ -108,14 +111,23 @@
 .passport-score-ticks span:nth-child(2), .passport-score-ticks span:nth-child(3) { position: absolute; transform: translateX(-50%); }
 .passport-score-ticks span:nth-child(2) { left: 50%; }
 .passport-score-ticks span:nth-child(3) { left: 75%; }
-.passport-risk-summary { display: grid; gap: 8px; margin: 0; }
-.passport-risk-summary > div { display: grid; grid-template-columns: 3.75rem minmax(0, 1fr); align-items: center; gap: 8px; }
-.passport-risk-summary dd { display: grid; grid-template-columns: minmax(0, 1fr) 6.25rem; align-items: center; gap: 8px; margin: 0; text-align: right; font-size: .85rem; font-variant-numeric: tabular-nums; }
-.passport-risk-summary dd strong { grid-column: 2; }
-.passport-risk-track { display: block; height: 8px; overflow: hidden; border-radius: 4px; background: #e2e8f0; }
-.passport-risk-track > span { display: block; height: 100%; border-radius: inherit; background: #125e60; }
-.passport-overdue > strong { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #fff0e4; color: #813711; font-size: .85rem; }
-.passport-calibration-dates { margin: 10px 0; font-size: .85rem; }
+.passport-risk-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0 0 10px; text-align: center; }
+.passport-risk-summary dd { display: grid; place-items: center; width: min(100%, 88px); aspect-ratio: 1; margin: 6px auto 0; font-size: clamp(.66rem, 1.8vw, .85rem); font-variant-numeric: tabular-nums; }
+.passport-risk-ring { position: relative; border-radius: 50%; background: conic-gradient(#125e60 var(--risk-share), #e2e8f0 0); }
+.passport-risk-ring::before { content: ""; position: absolute; inset: 7px; border-radius: inherit; background: #fff; }
+.passport-risk-ring strong { position: relative; white-space: nowrap; }
+.passport-calibration-badge { padding: 4px 10px; border-radius: 999px; background: #edf3fb; color: #415a76; font-size: .85rem; font-weight: 650; }
+.passport-calibration-badge[data-status=current] { background: #e1f3e8; color: #166437; }
+.passport-calibration-badge:is([data-status=overdue], [data-status=today]) { background: #fff0e4; color: #813711; }
+.passport-calibration-countdown { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 12px 0; }
+.passport-countdown-value { font-size: 2rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.passport-countdown-value small { font-size: .95rem; }
+.passport-calibration-countdown p, .passport-calibration-previous { color: #526579; font-size: .85rem; }
+.passport-calibration-deadline { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid #c7dfde; border-radius: 10px; background: #edf7f6; }
+.passport-calibration-deadline > span { display: grid; place-items: center; flex: 0 0 38px; height: 38px; border-radius: 8px; background: #d7edeb; color: #125e60; }
+.passport-calibration-deadline svg { width: 24px; height: 24px; }
+.passport-calibration-deadline p { margin: 0; }
+.passport-summary-card .passport-calibration-previous { padding-top: 8px; border-top: 1px solid #e2e8f0; }
 .passport .passport-primary-action { display: inline-block; padding: 10px 12px; border-radius: 7px; background: #125e60; color: #fff; text-decoration: none; font-weight: 650; }
 .passport-redesign .passport-grid { grid-template-columns: repeat(auto-fit, minmax(min(175px, 100%), 1fr)); overflow-wrap: anywhere; }
 @media (max-width: 850px) {
