@@ -42,7 +42,7 @@ export default function DocumentOriginal({ apiBaseUrl }) {
       <nav className="passport-links" aria-label="Navegación del documento">
         {passport && <Link to={`/passport/${encodeURIComponent(passport)}`}>Volver al pasaporte</Link>}
         <Link to={`/?tab=review&documentId=${encodeURIComponent(documentId)}${passport ? `&passport=${encodeURIComponent(passport)}` : ""}#selected-document`}>Revisar campos</Link>
-        <Link to="/">Inicio y búsqueda</Link>
+        <Link to="/?tab=inventory">Ir al inventario</Link>
       </nav>
     </header>
     {state.loading ? <p role="status">Cargando original…</p> : state.error ? <p role="alert">{state.error}</p> : <section className="workspace-panel">

@@ -24,7 +24,7 @@
 .passport-sidebar { display: flex; flex-direction: column; gap: 10px; padding: 24px 14px; background: #122945; }
 .passport-sidebar a { color: #edf5ff; padding: 8px; border-radius: 6px; text-decoration: none; }
 .passport-sidebar a:hover { background: #284568; }
-.passport-sidebar .passport-brand { margin-bottom: 14px; font-weight: 750; }
+.passport-sidebar .passport-brand { margin-bottom: 14px; padding: 8px; color: #edf5ff; font-weight: 750; }
 .passport-redesign { box-sizing: border-box; width: 100%; min-width: 0; }
 .passport-overview { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
 .passport-redesign .passport-identity-card, .passport-summary-card { padding: 0; border: 1px solid #d6e0ee; border-radius: 12px; background: #fff; overflow-wrap: anywhere; }
