@@ -8,6 +8,7 @@ const calibrationLabels = {
   NO_HISTORY: ["–", "Sin historial"],
   NO_DUE_DATE: ["–", "Sin vencimiento"],
 };
+const calibrationPriority = { OVERDUE: 0, DUE_SOON: 1, CURRENT: 2, NO_HISTORY: 3, NO_DUE_DATE: 4 };
 
 function InstrumentIdentity({ instrument, to, location }) {
   const { technical_name, serial_number, plant_tag } = instrument;
@@ -32,7 +33,10 @@ function InventoryGroups({ instruments }) {
     {[...groups].sort(([a], [b]) => a.localeCompare(b, "es")).map(([area, rows]) => <section key={area} className="inventory-group">
       <h3>{area} <small>{rows.length} {rows.length === 1 ? "instrumento" : "instrumentos"}</small></h3>
       <ul className="document-results instrument-results">
-        {rows.map(({ instrument, point }) => {
+        {rows.sort((a, b) =>
+          (calibrationPriority[a.instrument.calibration_status] ?? 5) -
+          (calibrationPriority[b.instrument.calibration_status] ?? 5)
+        ).map(({ instrument, point }) => {
           const status = instrument.calibration_status;
           const [icon, label] = calibrationLabels[status] ?? ["–", "Estado no disponible"];
           return <li key={instrument.public_id} className="inventory-row">
