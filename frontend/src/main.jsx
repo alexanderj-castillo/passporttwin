@@ -377,8 +377,12 @@ function App() {
   const initialTab = params.get("tab") === "audit" ? "audit" : (params.get("tab") === "review" || params.has("documentId")) ? "review" : "home";
   const hasDocument = /^\d+$/.test(params.get("documentId") || "");
   const hasAudit = /^\d+$/.test(params.get("id") || "");
+  const reviewingDocument = initialTab === "review" && hasDocument;
+  const auditingDocument = initialTab === "audit" && hasAudit && params.get("entity") !== "instrument";
   const initialDocument = hasDocument ? params.get("documentId") : "";
   const initialAudit = hasAudit ? params.get("id") : "";
+  const passportQuery = params.get("passport") ? `&passport=${encodeURIComponent(params.get("passport"))}` : "";
+  const originalQuery = passportQuery.replace(/^&/, "?");
   React.useEffect(() => {
     if (initialTab === "review" && hasDocument) loadDocument();
     if (initialTab === "audit" && hasAudit) queryAudit({ preventDefault() {} });
@@ -389,10 +393,13 @@ function App() {
   const [documentId, setDocumentId] = useState(initialDocument);
   const [loadedDocumentId, setLoadedDocumentId] = useState(null);
   React.useEffect(() => {
-    if (hash === "#selected-document" && loadedDocumentId != null) {
+    if ((reviewingDocument || hash === "#selected-document") && loadedDocumentId != null) {
       document.getElementById("selected-document")?.focus();
     }
-  }, [hash, loadedDocumentId]);
+  }, [hash, loadedDocumentId, reviewingDocument]);
+  React.useEffect(() => {
+    if (auditingDocument) document.getElementById("workspace-title")?.focus();
+  }, [auditingDocument]);
   const [loadedDocumentName, setLoadedDocumentName] = useState("");
   const [processingStatus, setProcessingStatus] = useState("");
   const [documentType, setDocumentType] = useState("");
@@ -653,7 +660,10 @@ function App() {
     <main className="passport workspace-page" data-view={activeTab}>
       <header className="workspace-heading">
       <p>Espacio de trabajo</p>
-      <h1>{{ home: "Inventario", review: "Revisión documental", audit: "Auditoría y trazabilidad" }[activeTab]}</h1>
+      <h1 id="workspace-title" tabIndex={-1}>{{ home: "Inventario", review: "Revisión documental", audit: "Auditoría y trazabilidad" }[activeTab]}</h1>
+      {(reviewingDocument || auditingDocument) && <p>
+        <Link to={`/?tab=${activeTab}${passportQuery}`}>Volver a buscar documentos</Link>
+      </p>}
       {/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.get("passport") || "") &&
         <Link className="workspace-back" to={`/passport/${params.get("passport")}`}>Volver al pasaporte</Link>}
       </header>
@@ -671,6 +681,7 @@ function App() {
 
       {activeTab === "review" && (
         <section>
+          {!reviewingDocument && <>
           <p>
             Sube y procesa un certificado nuevo o busca uno existente. Revisa los campos, guarda las correcciones, valida e incorpora la calibración al historial.
           </p>
@@ -730,10 +741,17 @@ function App() {
           </section>
 
           </details>
+          </>}
+
+          {reviewingDocument && loading && !loadedDocumentId && <p role="status">Cargando documento…</p>}
 
           {loadedDocumentId && (
             <section aria-labelledby="selected-document"><h3 id="selected-document" tabIndex={-1}>{loadedDocumentName || `Documento ${loadedDocumentId}`}</h3>
-            <p><Link to={`/documents/${loadedDocumentId}/original${params.get("passport") ? `?passport=${encodeURIComponent(params.get("passport"))}` : ""}`}>Abrir original</Link></p>
+            <nav className="document-review-controls" aria-label="Acciones del documento">
+              <Link to={`/documents/${loadedDocumentId}/original${originalQuery}`}>Abrir original</Link>
+              {fields.length > 0 && <a href="#extracted-fields">{isMaterialized ? "Ver campos extraídos" : "Revisar y corregir campos"}</a>}
+              <Link to={`/?tab=audit&entity=document&id=${loadedDocumentId}${passportQuery}`}>Ver auditoría del documento</Link>
+            </nav>
             {canProcessCertificate && <button type="button" onClick={processCertificate} disabled={loading || hasUnsavedChanges}>
               {processingStatus === "FAILED_EXTRACTION" ? "Reintentar extracción" : "Procesar certificado"}
             </button>}
@@ -767,7 +785,6 @@ function App() {
               <p>La consulta es de solo lectura: editar estos campos no actualizaría la calibración ya incorporada.</p>
               {materialization.instrument_public_id && <Link to={`/passport/${encodeURIComponent(materialization.instrument_public_id)}`}>Ver historial en el pasaporte</Link>}
             </> : <div className="document-review-controls">
-              {fields.length > 0 && <a href="#extracted-fields">Ir a los campos extraídos</a>}
               {fields.length > 0 && (needsFieldValidation || !materialization.can_materialize) ? (
                 <button type="button" onClick={revalidateDocument} disabled={loading || hasUnsavedChanges}>
                   Validar campos guardados
@@ -924,6 +941,13 @@ function App() {
       {activeTab === "audit" && (
         <section>
 
+          {auditingDocument ? <>
+            <nav className="document-review-controls" aria-label="Acciones del documento">
+              <Link to={`/documents/${initialAudit}/original${originalQuery}`}>Abrir original</Link>
+              <Link to={`/?tab=review&documentId=${initialAudit}${passportQuery}`}>Revisar campos</Link>
+            </nav>
+            {auditLoading && <p role="status">Cargando auditoría…</p>}
+          </> : <>
           <p>
             Consulta el historial de eventos y correcciones, ordenado del más reciente al más antiguo.
           </p>
@@ -1005,6 +1029,7 @@ function App() {
           </form>
 
           </details>
+          </>}
 
           {auditMessage && (
             <p style={{ marginTop: "20px" }}>{auditMessage}</p>
