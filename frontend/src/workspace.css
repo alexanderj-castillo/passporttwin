@@ -36,6 +36,22 @@
 .instrument-results li { display: grid; gap: 3px; justify-items: start; }
 .instrument-results a { font-weight: 650; }
 .instrument-results span { font-size: 0.9em; }
+.inventory-groups { display: grid; gap: 10px; margin-block: 14px; }
+.inventory-group { border: 1px solid #d6e0ee; border-radius: 8px; }
+.inventory-group h3 { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 12px; margin: 0; padding: 8px 12px; background: #edf3fb; border-radius: 7px 7px 0 0; font-size: .95rem; }
+.inventory-group h3 small { color: #526579; font-weight: 500; }
+.inventory-group ul { margin: 0; }
+.workspace-page .inventory-group .inventory-row { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 9px 12px; }
+.inventory-row:last-child { border-bottom: 0; }
+.inventory-identity { display: grid; gap: 3px; }
+.inventory-row .inventory-status { display: inline-flex; align-items: center; gap: 5px; padding: 3px 7px; border-radius: 999px; background: #edf2f7; color: #526579; font-size: .75rem; font-weight: 650; }
+.inventory-row .inventory-status span { color: inherit; font-size: inherit; }
+.inventory-row .inventory-status[data-status=CURRENT] { background: #e1f3e8; color: #166437; }
+.inventory-row .inventory-status[data-status=DUE_SOON] { background: #fff1cf; color: #784e00; }
+.inventory-row .inventory-status[data-status=OVERDUE] { background: #fce7e9; color: #96262d; }
+@media (max-width: 420px) {
+  .workspace-page .inventory-group .inventory-row { grid-template-columns: minmax(0, 1fr); }
+}
 .workspace-pages { display: flex; flex-wrap: wrap; gap: 12px; }
 #document-review-search, #document-audit-search { box-sizing: border-box; max-width: 100%; padding: 8px; }
 
