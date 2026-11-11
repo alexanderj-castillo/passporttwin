@@ -53,6 +53,22 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
   const passportUrl = `/passport/${encodeURIComponent(publicId)}`;
   const detailUrl = view => `${passportUrl}?vista=${view}`;
   const [state, setState] = useState({ loading: true });
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function refreshAnalytics() {
+    if (!state.instrument?.id) return;
+    setRefreshing(true);
+    try {
+      const response = await fetch(
+        `${apiBaseUrl.replace(/\/$/, "")}/api/v1/instruments/${state.instrument.id}/analytics-snapshots`,
+        { method: "POST" },
+      );
+      if (!response.ok) throw new Error();
+      window.location.reload();
+    } catch {
+      setRefreshing(false);
+    }
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -139,7 +155,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
     ["identity", "Datos técnicos", detailUrl("identity")],
     ["calibrations", "Calibraciones", detailUrl("calibrations"), count(calibrations)],
     ["maintenance", "Mantenimiento", detailUrl("maintenance"), count(maintenance)],
-    ["documents", "Documentos", detailUrl("documents"), count(context?.documents)],
+    ["documents", "Documentos", detailUrl("documents"), context ? (context.documents?.length || 0) + (context.type_documents?.length || 0) : null],
     ["audit", "Historial de eventos", auditUrl],
     ["score", "Salud del instrumento", detailUrl("score"), health == null ? null : number(health) + " / 100"],
   ];
@@ -179,6 +195,16 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
               return <Link key={href} to={href}>{content}</Link>;
             })}
           </nav>
+          <p className="passport-label-actions">
+            <a
+              className="passport-plan-link"
+              href={`${apiBaseUrl.replace(/\/$/, "")}/api/v1/instruments/${instrument.public_id}/label.pdf`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Descargar etiqueta 50 × 30 mm
+            </a>
+          </p>
         </header>
         <div className="passport-decision">
           <div className="passport-summary-card">
@@ -198,6 +224,9 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
               </div>}
             <p className="passport-data-caption">{health == null ? "Último intento de cálculo" : "Cálculo en esta consulta"} · {dateTimeLabel(score?.calculated_at)}</p>
             <p className="passport-data-caption">Datos de calibración hasta: {calendarDate(dataThrough)}</p>
+            <button type="button" className="passport-secondary-action" onClick={refreshAnalytics} disabled={refreshing}>
+              {refreshing ? "Calculando…" : "Actualizar cálculo"}
+            </button>
           </div>
           <div className="passport-summary-card">
             <h2>Riesgo estimado de salir de tolerancia</h2>
@@ -338,7 +367,18 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
             <Link to={`/documents/${document.id}/original?passport=${instrument.public_id}`}>Abrir original</Link>
             <Link to={`/?tab=review&documentId=${document.id}&passport=${instrument.public_id}`}>Revisar campos</Link>
           </nav>
-        </li>)}</ul> : <div className="passport-summary-card"><p>{context ? "No hay documentos vinculados." : "No se ha podido consultar la documentación."}</p></div>}
+        </li>)}</ul> : null}
+      {context?.type_documents?.length ? <>
+        <h3>Ficha del modelo</h3>
+        <ul className="passport-records">{context.type_documents.map(document => <li key={`type-${document.id}`} className="passport-summary-card">
+          <div className="passport-record-header"><strong>{document.original_filename}</strong><span className="passport-detail-status" data-status={String(document.processing_status).toLowerCase()}>{statusLabel(document.processing_status)}</span></div>
+          <nav className="passport-links" aria-label={`Acciones de ${document.original_filename}`}>
+            <Link to={`/documents/${document.id}/original?passport=${instrument.public_id}`}>Abrir original</Link>
+            <Link to={`/?tab=documents`}>Biblioteca documental</Link>
+          </nav>
+        </li>)}</ul>
+      </> : null}
+      {!context?.documents?.length && !context?.type_documents?.length && <div className="passport-summary-card"><p>{context ? "No hay documentos vinculados." : "No se ha podido consultar la documentación."}</p></div>}
     </section>}
     </main>
   </AppShell>;
