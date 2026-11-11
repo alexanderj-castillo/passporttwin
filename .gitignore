@@ -41,3 +41,9 @@ backend/storage/raw/
 *.aasx
 # Local experiment runs (curated reports may be committed under experiments/results)
 experiments/runs/
+
+# Reglas locales de agentes (no versionar)
+AGENTS.md
+CLAUDE.md
+opencode.json
+.opencode/
