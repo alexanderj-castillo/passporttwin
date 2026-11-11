@@ -123,6 +123,7 @@
 .passport-risk-ring strong { position: relative; white-space: nowrap; }
 .passport-calibration-badge { padding: 4px 10px; border-radius: 999px; background: #edf3fb; color: #415a76; font-size: .85rem; font-weight: 650; }
 .passport-calibration-badge[data-status=current] { background: #e1f3e8; color: #166437; }
+.passport-calibration-badge[data-status=soon] { background: #fff1cf; color: #784e00; }
 .passport-calibration-badge:is([data-status=overdue], [data-status=today]) { background: #fff0e4; color: #813711; }
 .passport-calibration-countdown { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 12px 0; }
 .passport-countdown-value { font-size: 2rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
