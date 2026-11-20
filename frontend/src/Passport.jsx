@@ -60,44 +60,12 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
   const detailUrl = view => `${passportUrl}?vista=${view}`;
   const [state, setState] = useState({ loading: true });
   const [refreshing, setRefreshing] = useState(false);
-  const [photoVersion, setPhotoVersion] = useState(0);
   const [photoMissing, setPhotoMissing] = useState(false);
-  const [photoBusy, setPhotoBusy] = useState(false);
-  const [photoMessage, setPhotoMessage] = useState("");
 
   useEffect(() => {
-    // Al cambiar de instrumento se reintenta la foto real y se limpia el aviso.
+    // Al cambiar de instrumento se reintenta la foto real.
     setPhotoMissing(false);
-    setPhotoVersion(0);
-    setPhotoMessage("");
   }, [publicId]);
-
-  async function uploadInstrumentPhoto(event) {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file || !state.instrument?.id) return;
-
-    setPhotoBusy(true);
-    setPhotoMessage("");
-
-    try {
-      const body = new FormData();
-      body.append("file", file);
-      const response = await fetch(`${apiBase}/api/v1/instruments/${state.instrument.id}/image`, {
-        method: "POST",
-        body,
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.detail || "No se ha podido subir la foto del instrumento.");
-      setPhotoMissing(false);
-      setPhotoVersion(Date.now());
-      setPhotoMessage("Foto del instrumento actualizada.");
-    } catch (error) {
-      setPhotoMessage(error.message);
-    } finally {
-      setPhotoBusy(false);
-    }
-  }
 
   async function refreshAnalytics() {
     if (!state.instrument?.id) return;
@@ -222,7 +190,7 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
           <div className="passport-identity-band">
             {(!photoMissing || demoMedia) ? <figure className="passport-photo-placeholder passport-demo-photo">
               <img
-                src={photoMissing ? demoMedia.photo : `${apiBase}/api/v1/instruments/${instrument.public_id}/image?v=${photoVersion}`}
+                src={photoMissing ? demoMedia.photo : `${apiBase}/api/v1/instruments/${instrument.public_id}/image`}
                 alt={photoMissing
                   ? `Imagen de referencia · ${instrument.technical_name || instrument.model}`
                   : `Fotografía · ${instrument.technical_name || instrument.model}`}
@@ -233,35 +201,6 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
               <h1 id="passport-view-title" tabIndex={-1}>{instrument.technical_name || instrument.model || "Instrumento"}</h1>
               {instrument.plant_tag && <p>Etiqueta de planta · <strong>{instrument.plant_tag}</strong></p>}
               <p>Número de serie · <strong>{instrument.serial_number}</strong></p>
-            </div>
-          </div>
-          <div className="passport-passport-tools">
-            <figure className="passport-qr">
-              <img
-                src={`${apiBase}/api/v1/instruments/${instrument.public_id}/qr`}
-                alt={`Código QR del pasaporte de ${instrument.serial_number}`}
-                width="96"
-                height="96"
-              />
-              <figcaption>QR del pasaporte</figcaption>
-            </figure>
-            <div className="passport-passport-links">
-              <a className="passport-plan-link" href={`${apiBase}/api/v1/instruments/${instrument.public_id}/qr?download=true`}>
-                Descargar QR (PNG)
-              </a>
-              <a className="passport-plan-link" href={`${apiBase}/api/v1/instruments/${instrument.public_id}/label.pdf`}>
-                Descargar etiqueta 50 × 30 mm (PDF)
-              </a>
-              <label className="passport-photo-upload">
-                {photoBusy ? "Subiendo foto…" : photoMissing ? "Añadir foto del instrumento" : "Cambiar foto del instrumento"}
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={uploadInstrumentPhoto}
-                  disabled={photoBusy}
-                />
-              </label>
-              {photoMessage && <span className="passport-photo-status" role="status">{photoMessage}</span>}
             </div>
           </div>
           <dl className="passport-id-summary">
@@ -281,6 +220,12 @@ export default function Passport({ apiBaseUrl, planOnly = false }) {
               return <Link key={href} to={href}>{content}</Link>;
             })}
           </nav>
+          <a
+            className="passport-secondary-action passport-qr-action"
+            href={`${apiBase}/api/v1/instruments/${instrument.public_id}/qr?download=true`}
+          >
+            Descargar QR (PNG)
+          </a>
         </header>
         <div className="passport-decision">
           <div className="passport-summary-card">
